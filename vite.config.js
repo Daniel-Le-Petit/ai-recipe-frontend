@@ -1,0 +1,25 @@
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()], // Active le plugin React pour la compilation
+  
+  // Section optimizeDeps : utile pour le pré-bundling des dépendances,
+  // et s'assure que les fichiers .js sont traités comme du JSX si nécessaire.
+  optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx', // Indique à esbuild de traiter les fichiers .js comme du JSX
+      },
+    },
+  },
+  
+  server: {
+    proxy: {
+      '/api': {
+        target: 'http://localhost:1338', // L'adresse et le port de votre backend Strapi
+        changeOrigin: true, // Nécessaire pour les requêtes de proxy
+      },
+    },
+  },
+});
