@@ -19,6 +19,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:1338', // L'adresse et le port de votre backend Strapi
         changeOrigin: true, // Nécessaire pour les requêtes de proxy
+	    port: 5173, // Assurez-vous que le port est 5173 ou celui que vous utilisez
       },
     },
   },
