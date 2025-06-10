@@ -1,11 +1,9 @@
 /* frontend/src/index.css */
-/* Ces trois lignes sont les directives de base de Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Vous pouvez ajouter d'autres styles globaux ici si nécessaire */
-/* Par exemple, pour appliquer la police Inter à tout le corps du document */
+/* Appliquer la police Inter à tout le corps du document */
 body {
   font-family: 'Inter', sans-serif;
 }

@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import './index.css'; // Assurez-vous que ce fichier importe bien les directives Tailwind
 
-// Définition des icônes utilisées dans l'interface (SVG inline)
+// Définition des icônes utilisées dans l'interface (SVG inline - chemins validés)
 const SparklesIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles">
-    <path d="M9.9 10.8c.4 1.9.9 3.8 1.4 5.7 1.4.9 2.8 1.9 4.2 2.8 1.4-.9 2.8-1.9 4.2-2.8.5-1.9 1-3.8 1.4-5.7 1.4-.9 2.8-1.9 4.2-2.8-1.4-.9-2.8-1.9-4.2-2.8-.5-1.9-1-3.8-1.4-5.7-1.4-.9-2.8-1.9-4.2-2.8z"/>
-    <path d="M2.2 4.2c.4 1.9.9 3.8 1.4 5.7 1.4.9 2.8 1.9 4.2 2.8 1.4-.9 2.8-1.9 4.2-2.8.5-1.9 1-3.8 1.4-5.7-1.4-.9-2.8-1.9-4.2-2.8-.5-1.9-1-3.8-1.4-5.7-1-4-.9-2.8-1.9-4.2-2.8z"/>
+    {/* Chemin pour l'étoile principale */}
+    <path d="M12 2L14.5 8L22 10.5L14.5 13L12 19L9.5 13L2 10.5L9.5 8L12 2Z" />
+    {/* Petites étoiles/étincelles supplémentaires */}
+    <path d="M20 7L22 5" />
+    <path d="M2 19L4 17" />
+    <path d="M12 17L14.5 19.5" />
+    <path d="M10 4.5L12 7" />
   </svg>
 );
 
@@ -62,13 +67,11 @@ function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mockMode, setMockMode] = useState(true); // Mode mock activé par défaut
-  const [showRecipeForm, setShowRecipeForm] = useState(false); // État pour afficher/cacher le formulaire
+  const [mockMode, setMockMode] = useState(true);
+  const [showRecipeForm, setShowRecipeForm] = useState(false);
 
-  // URL de votre backend Strapi, lue depuis la variable d'environnement de Vite
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
-  // Données de recette mockées
   const mockRecipe = {
     title: "Curry de Légumes Express (Mocké)",
     duration: "30 minutes",
@@ -159,12 +162,11 @@ function App() {
     }
   };
 
-  // Fonction pour faire défiler jusqu'au formulaire de recette
   const scrollToForm = () => {
-    setShowRecipeForm(true); // Afficher le formulaire si caché
+    setShowRecipeForm(true);
     setTimeout(() => {
       document.getElementById('generate-recipe-form')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100); // Petit délai pour permettre l'affichage du formulaire avant de défiler
+    }, 100);
   };
 
 
@@ -195,7 +197,7 @@ function App() {
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
           <div className="md:w-1/2 text-left">
             <h1 className="text-5xl md:text-6xl font-extrabold text-green-800 leading-tight mb-6">
-              Vos recettes sur-mesure, vos courses en un clic !
+              Vos recettes sur-mesure, vos courses en un clic.
             </h1>
             <p className="text-lg md:text-xl text-gray-700 mb-8">
               L'IA qui cuisine selon vos envies... et fait les courses pour vous.
