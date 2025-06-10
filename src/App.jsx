@@ -195,7 +195,7 @@ function App() {
         <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
           <div className="md:w-1/2 text-left">
             <h1 className="text-5xl md:text-6xl font-extrabold text-green-800 leading-tight mb-6">
-              Vos recettes sur-mesure, vos courses en un clic.
+              Vos recettes sur-mesure, vos courses en un clic !
             </h1>
             <p className="text-lg md:text-xl text-gray-700 mb-8">
               L'IA qui cuisine selon vos envies... et fait les courses pour vous.
