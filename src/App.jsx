@@ -1,5 +1,6 @@
+// frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
-import './index.css'; // Assurez-vous que ce fichier importe bien les directives Tailwind
+import './index.css'; // Assurez-vous que TailwindCSS est bien importé ici
 
 // Icône de Feuille Verte pour le titre
 const LeafIcon = () => (
@@ -65,7 +66,7 @@ function App() {
     numPeople: 1,
     maxDuration: 60,
     difficulty: 'Facile',
-    ingredients: '',
+    ingredients: '', 
     maxIngredients: 10,
     recipeGoal: '',
     robotCompatible: false,
@@ -73,13 +74,17 @@ function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mockMode, setMockMode] = useState(true);
+  // CHANGEMENT ICI : mockMode initialisé à false pour tester l'API backend
+  const [mockMode, setMockMode] = useState(false); 
   const [showRecipeForm, setShowRecipeForm] = useState(false);
 
-  const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
+  // Revenir à l'URL via .env car localtunnel semble OK
+  const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL; 
 
-  const mockRecipe = {
-    title: "Curry de Légumes Express (Mocké)",
+
+  // Données de recette mockées pour la génération IA (si mockMode actif)
+  const mockAiRecipe = {
+    title: "Curry de Légumes Express (Mocké AI)",
     duration: "30 minutes",
     ingredients: [
       { name: "Lait de coco", quantity: "400ml" },
@@ -103,6 +108,7 @@ function App() {
     robotCompatible: true
   };
 
+
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setPreferences((prev) => ({
@@ -111,35 +117,45 @@ function App() {
     }));
   };
 
-  const handleSubmit = async (e) => {
+  // Ajout d'un paramètre actionType pour distinguer la génération de la recherche
+  const handleSubmit = async (e, actionType) => {
     e.preventDefault();
+    console.log("handleSubmit called with actionType:", actionType); // Débogage
     setLoading(true);
     setError('');
     setGeneratedRecipe(null);
 
-    if (mockMode) {
+    // Si c'est le mode mock pour l'IA, on utilise les données mockées
+    // Cette condition ne sera plus remplie si mockMode est false
+    if (mockMode && actionType === 'generateAI') {
+      console.log("Mock mode active for AI generation."); // Débogage
       setTimeout(() => {
-        setGeneratedRecipe({ ...mockRecipe, id: Date.now() });
+        setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
       }, 1500);
-      return;
+      return; // Retourne ici, donc pas d'appel fetch
     }
 
-    try {
-      const dataToSend = {
-        cuisineType: preferences.cuisineType,
-        numPeople: preferences.numPeople,
-        maxDuration: preferences.maxDuration,
-        difficulty: preferences.difficulty,
-        ingredients: preferences.ingredients
-                     .split(',')
-                     .map(item => item.trim())
-                     .filter(item => item.length > 0),
-        maxIngredients: preferences.maxIngredients,
-        recipeGoal: preferences.recipeGoal,
-        robotCompatible: preferences.robotCompatible,
-      };
+    // Préparation des données à envoyer au backend
+    let dataToSend = {
+      actionType: actionType, // 'generateAI' ou 'searchExisting'
+      cuisineType: preferences.cuisineType,
+      numPeople: preferences.numPeople,
+      maxDuration: preferences.maxDuration,
+      difficulty: preferences.difficulty,
+      ingredients: preferences.ingredients
+                   .split(',')
+                   .map(item => item.trim())
+                   .filter(item => item.length > 0),
+      maxIngredients: preferences.maxIngredients,
+      recipeGoal: preferences.recipeGoal,
+      robotCompatible: preferences.robotCompatible,
+    };
 
+    console.log("Sending data to backend:", dataToSend); // Débogage
+    console.log("Backend URL:", STRAPI_BACKEND_URL); // Débogage
+
+    try {
       const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
         method: 'POST',
         headers: {
@@ -148,12 +164,16 @@ function App() {
         body: JSON.stringify(dataToSend),
       });
 
+      console.log("Received response from fetch:", response); // Débogage
+
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("Backend error response:", errorData); // Débogage
         throw new Error(errorData.message || `Erreur HTTP! Statut: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log("Parsed backend data:", data); // Débogage
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
       } else {
@@ -161,10 +181,11 @@ function App() {
       }
       
     } catch (err) {
-      console.error("Erreur de génération de recette:", err);
+      console.error("Erreur de génération de recette ou de recherche (catch block):", err); // Débogage
       setError(err.message || "Une erreur inattendue est survenue lors de la génération de recette.");
     } finally {
       setLoading(false);
+      console.log("Loading set to false."); // Débogage
     }
   };
 
@@ -272,7 +293,7 @@ function App() {
       {showRecipeForm && (
         <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
           <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Générez Votre Recette !</h2>
-          <form onSubmit={handleSubmit} className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
+          <form className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
             {error && <p className="text-red-600 text-center font-medium">{error}</p>}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -385,25 +406,48 @@ function App() {
               <KitchenRobotIcon className="ml-2 h-6 w-6 text-gray-600" />
             </div>
 
-            <button
-              type="submit"
-              className="w-full py-4 bg-green-700 text-white font-bold text-xl rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-              disabled={loading}
-            >
-              {loading ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Génération en cours...
-                </>
-              ) : (
-                <>
-                  <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette !
-                </>
-              )}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button
+                    type="button" // Important: utilisez 'button' pour éviter la soumission par défaut
+                    onClick={(e) => handleSubmit(e, 'generateAI')}
+                    className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                    disabled={loading}
+                >
+                    {loading && preferences.actionType === 'generateAI' ? (
+                    <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Génération AI en cours...
+                    </>
+                    ) : (
+                    <>
+                        <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette IA
+                    </>
+                    )}
+                </button>
+                <button
+                    type="button" // Important: utilisez 'button' pour éviter la soumission par défaut
+                    onClick={(e) => handleSubmit(e, 'searchExisting')}
+                    className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                    disabled={loading}
+                >
+                    {loading && preferences.actionType === 'searchExisting' ? (
+                    <>
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Recherche en cours...
+                    </>
+                    ) : (
+                    <>
+                        <ShoppingCartIcon className="mr-2 h-6 w-6" /> Rechercher une Recette Ex. par Ingrédients
+                    </>
+                    )}
+                </button>
+            </div>
 
             {/* Bouton pour basculer le mode Mock (pour les tests) */}
             <div className="text-center mt-4">
@@ -426,8 +470,8 @@ function App() {
         <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
           <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
             <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
-              <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
-            </h2>
+                  <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
+                </h2>
             {/* Badge IA Testée (si applicable) */}
             {generatedRecipe.aiTested && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
@@ -446,9 +490,9 @@ function App() {
 
             <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
             <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
-              {generatedRecipe.ingredients && generatedRecipe.ingredients.map((ing, index) => (
+              {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
                 <li key={index}>
-                  <span className="font-semibold">{ing.name}</span>: {ing.quantity}
+                  <span className="font-semibold">{item.name}</span>: {item.quantity}
                 </li>
               ))}
             </ul>
@@ -494,10 +538,13 @@ function App() {
 
       {/* Pied de page simple */}
       <footer className="bg-gray-800 text-white py-8 text-center rounded-t-xl mt-auto">
-        <p>&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés.</p>
+        {/* Changement visible pour forcer le déploiement */}
+        <p>&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés. (Dernière Mise à Jour)</p>
         <div className="flex justify-center space-x-4 mt-4">
           <a href="#" className="text-gray-400 hover:text-white transition-colors">Politique de Confidentialité</a>
           <a href="#" className="text-gray-400 hover:text-white transition-colors">Mentions Légales</a>
+        {/* Nouveau texte pour débogage */}
+        <p className="text-xs text-gray-500 mt-2">Debug URL: {STRAPI_BACKEND_URL}</p>
         </div>
       </footer>
     </div>
