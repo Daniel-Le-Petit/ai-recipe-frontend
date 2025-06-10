@@ -8,7 +8,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        // Assurez-vous que 'Inter' est bien chargée si vous utilisez Google Fonts ou similaire
+        // Assurez-vous que cette police est importée dans votre CSS ou via Google Fonts si vous l'utilisez
         inter: ['Inter', 'sans-serif'],
       },
     },

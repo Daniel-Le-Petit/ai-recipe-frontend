@@ -1,13 +1,9 @@
-// frontend/tailwind.config.js
-/** @type {import('tailwindcss').Config} */
-export default {
-  // Liste des fichiers où Tailwind doit chercher les classes CSS
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}", // Ceci est crucial pour scanner vos composants React
-  ],
-  theme: {
-    extend: {}, // Ici, vous pouvez étendre les thèmes de Tailwind
-  },
-  plugins: [], // Ici, vous pouvez ajouter des plugins Tailwind
+/* frontend/src/index.css */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Vous pouvez ajouter d'autres styles globaux ici si nécessaire */
+body {
+  font-family: 'Inter', sans-serif; /* Application globale de la police Inter */
 }
