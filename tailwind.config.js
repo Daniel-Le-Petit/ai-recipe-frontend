@@ -3,12 +3,12 @@
 export default {
   content: [
     "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}", 
   ],
   theme: {
     extend: {
+      // Assurez-vous que la police 'Inter' est bien configurée ici
       fontFamily: {
-        // Assurez-vous que cette police est importée dans votre CSS ou via Google Fonts si vous l'utilisez
         inter: ['Inter', 'sans-serif'],
       },
     },
