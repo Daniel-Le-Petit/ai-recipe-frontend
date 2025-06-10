@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import './index.css'; // Assurez-vous que ce fichier importe bien les directives Tailwind
 
-// Définition des icônes utilisées dans l'interface (SVG inline - chemins validés)
+// Icône de Feuille Verte pour le titre
+const LeafIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#388E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 18 2.2 18 2c0 2.1-2 3.9-3 5.5C11.9 15.3 8.5 19.5 11 20Z"/><path d="M2 21c0-3 1.8-5.7 4.5-8.5C9.3 10 12 8.2 15 8"/>
+  </svg>
+);
+
+
+// Définition des icônes utilisées dans l'interface (SVG inline)
 const SparklesIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles">
-    {/* Chemin pour l'étoile principale */}
     <path d="M12 2L14.5 8L22 10.5L14.5 13L12 19L9.5 13L2 10.5L9.5 8L12 2Z" />
-    {/* Petites étoiles/étincelles supplémentaires */}
     <path d="M20 7L22 5" />
     <path d="M2 19L4 17" />
     <path d="M12 17L14.5 19.5" />
@@ -33,7 +39,7 @@ const KitchenRobotIcon = () => (
   </svg>
 );
 
-// Icônes spécifiques pour la section "Comment ça marche" (à adapter si vous avez des icônes personnalisées)
+// Icônes spécifiques pour la section "Comment ça marche"
 const LightbulbIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lightbulb">
     <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 22v-4"/>
@@ -175,8 +181,8 @@ function App() {
       {/* Header avec navigation améliorée */}
       <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl">
         <div className="flex items-center space-x-2">
-          {/* Logo AI & Fines Herbes */}
-          <img src="https://placehold.co/40x40/6AB04C/ffffff?text=AI" alt="Logo AI & Fines Herbes" className="h-10 w-10 rounded-full" />
+          {/* Logo AI & Fines Herbes avec icône de feuille */}
+          <LeafIcon />
           <span className="font-bold text-2xl text-green-700">AI & Fines Herbes</span>
         </div>
         <nav className="hidden md:flex space-x-6 text-lg">
@@ -215,8 +221,8 @@ function App() {
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center items-center">
-            {/* Illustration de panier IA */}
-            <img src="https://placehold.co/400x400/90EE90/228B22?text=Panier+IA" alt="Illustration Panier IA" className="w-2/3 md:w-full max-w-sm drop-shadow-xl" />
+            {/* Image de panier IA améliorée */}
+            <img src="https://images.pexels.com/photos/6347901/pexels-photo-6347901.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" alt="Illustration Panier IA" className="w-2/3 md:w-full max-w-sm drop-shadow-xl rounded-lg" />
           </div>
         </div>
       </section>
@@ -256,8 +262,8 @@ function App() {
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            {/* Image de recette sur mobile conforme à la maquette */}
-            <img src="https://placehold.co/300x500/ADD8E6/000080?text=Recette+IA" alt="Illustration Recette sur Mobile" className="w-2/3 md:w-full max-w-xs rounded-xl shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300" />
+            {/* Image de recette IA améliorée */}
+            <img src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Illustration Recette sur Mobile" className="w-2/3 md:w-full max-w-xs rounded-xl shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300" />
           </div>
         </div>
       </section>
