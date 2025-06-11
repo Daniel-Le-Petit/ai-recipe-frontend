@@ -74,12 +74,14 @@ function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  // CHANGEMENT ICI : mockMode initialisé à false pour tester l'API backend
   const [mockMode, setMockMode] = useState(false); 
   const [showRecipeForm, setShowRecipeForm] = useState(false);
 
-  // Revenir à l'URL via .env car localtunnel semble OK
-  const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL; 
+  // --- CONFIGURATION DE L'URL DU BACKEND ---
+  // Pour le développement local, nous utilisons http://localhost:1338
+  const STRAPI_BACKEND_URL = "http://localhost:1338"; 
+  // Pour le déploiement en production, vous utiliseriez:
+  // const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
 
   // Données de recette mockées pour la génération IA (si mockMode actif)
@@ -105,7 +107,9 @@ function App() {
       "Servir avec du riz Basmati."
     ],
     aiTested: true,
-    robotCompatible: true
+    robotCompatible: true,
+    // NOUVEAU: URL d'image de substitution pour le mode mock
+    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image" 
   };
 
 
@@ -337,7 +341,7 @@ function App() {
               </div>
 
               <div>
-                <label htmlFor="difficulty" className="block text-gray-700 font-semibold mb-2">Niveau de difficulté</label>
+                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Niveau de difficulté</label>
                 <select
                   id="difficulty"
                   name="difficulty"
@@ -470,8 +474,18 @@ function App() {
         <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
           <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
             <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
-                  <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
-                </h2>
+              <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
+            </h2>
+            {/* NEW: Affichage de l'image de la recette */}
+            {generatedRecipe.imageUrl && (
+              <img 
+                src={generatedRecipe.imageUrl} 
+                alt={generatedRecipe.title} 
+                className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
+                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
+              />
+            )}
+
             {/* Badge IA Testée (si applicable) */}
             {generatedRecipe.aiTested && (
               <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
@@ -538,13 +552,10 @@ function App() {
 
       {/* Pied de page simple */}
       <footer className="bg-gray-800 text-white py-8 text-center rounded-t-xl mt-auto">
-        {/* Changement visible pour forcer le déploiement */}
-        <p>&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés. (Dernière Mise à Jour)</p>
+        <p>&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés.</p>
         <div className="flex justify-center space-x-4 mt-4">
           <a href="#" className="text-gray-400 hover:text-white transition-colors">Politique de Confidentialité</a>
           <a href="#" className="text-gray-400 hover:text-white transition-colors">Mentions Légales</a>
-        {/* Nouveau texte pour débogage */}
-        <p className="text-xs text-gray-500 mt-2">Debug URL: {STRAPI_BACKEND_URL}</p>
         </div>
       </footer>
     </div>
