@@ -219,15 +219,12 @@ function App() {
 
       {/* Menu déroulant pour mobile (conditionnellement affiché) */}
       {isMobileMenuOpen && (
-        <nav className="md:hidden fixed inset-0 bg-gray-800 bg-opacity-95 flex flex-col items-center justify-center space-y-8 z-[100]">
-          <button onClick={toggleMobileMenu} className="absolute top-4 right-4 p-2 text-white rounded-md hover:bg-gray-700 transition-colors">
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><HomeIcon className="mr-3 w-8 h-8"/> Accueil</a>
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><SparklesIcon className="mr-3 w-8 h-8"/> Fonctionnalités</a>
-          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><BrainIcon className="mr-3 w-8 h-8"/> Créer</a>
-          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><PackageIcon className="mr-3 w-8 h-8"/> Explorer Recettes</a>
-          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><ShoppingCartIcon className="mr-3 w-8 h-8"/> Contact</a>
+        <nav className="md:hidden absolute top-full right-4 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
+          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
+          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
+          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
         </nav>
       )}
 
