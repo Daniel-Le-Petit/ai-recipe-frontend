@@ -4,7 +4,7 @@ import './index.css'; // Assurez-vous que ce fichier est bien importé et contie
 // Définition des icônes utilisées dans l'interface pour améliorer le visuel
 // Ces icônes sont des SVG inline pour éviter des dépendances externes comme lucide-react pour la prévisualisation.
 
-// NOUVEAU Logo Inspirant pour AI & Fines Herbes
+// Nouveau Logo Inspirant pour AI & Fines Herbes
 const LeafIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#388E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     {/* Forme de la feuille */}
@@ -18,7 +18,7 @@ const LeafIcon = () => (
 
 const KitchenRobotIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-robot">
-    <path d="M10 20H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M10 14h4"/><path d="M12 17v3"/><path d="M19 17v3"/><path d="M19 14h-2"/><path d="M5 13H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/><path d="M16 13h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/>
+    <path d="M10 20H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M10 14h4"/><path d="M12 17v3"/><path d="M19 17v3"/><path d="M19 14h-2"/><path d="M5 13H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/><path d="M16 13h-1a2 2 0 0 0-2 2v2a2 2 0 : 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/>
   </svg>
 );
 
@@ -198,7 +198,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
       {/* Header avec navigation améliorée */}
-      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20"> {/* Ajout de z-20 pour que le menu soit au-dessus */}
+      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative">
         <div className="flex items-center space-x-2">
           {/* Logo AI & Fines Herbes avec icône de feuille */}
           <LeafIcon />
@@ -212,19 +212,22 @@ function App() {
           <a href="#newsletter" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
         {/* Burger menu pour mobile */}
-        <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors">
+        <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors z-30">
           <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
         </button>
       </header>
 
       {/* Menu déroulant pour mobile (conditionnellement affiché) */}
       {isMobileMenuOpen && (
-        <nav className="md:hidden absolute top-full right-4 bg-white border border-gray-200 rounded-lg shadow-xl py-4 z-50 w-64"> {/* Z-index augmenté à z-50 */}
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
-          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
-          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
-          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
+        <nav className="md:hidden fixed inset-0 bg-gray-800 bg-opacity-95 flex flex-col items-center justify-center space-y-8 z-[100]">
+          <button onClick={toggleMobileMenu} className="absolute top-4 right-4 p-2 text-white rounded-md hover:bg-gray-700 transition-colors">
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          </button>
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><HomeIcon className="mr-3 w-8 h-8"/> Accueil</a>
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><SparklesIcon className="mr-3 w-8 h-8"/> Fonctionnalités</a>
+          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><BrainIcon className="mr-3 w-8 h-8"/> Créer</a>
+          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><PackageIcon className="mr-3 w-8 h-8"/> Explorer Recettes</a>
+          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-white text-2xl font-semibold hover:text-green-400 transition-colors flex items-center"><ShoppingCartIcon className="mr-3 w-8 h-8"/> Contact</a>
         </nav>
       )}
 
