@@ -85,8 +85,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
-  const [showRecipeForm, setShowRecipeForm] = useState(false); // Pour contrôler la visibilité du formulaire
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
+  const [currentPage, setCurrentPage] = useState('home'); // État pour la page actuelle: 'home' ou 'createRecipe'
+
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
@@ -182,11 +183,26 @@ function App() {
     }
   };
 
-  const scrollToForm = () => {
-    setShowRecipeForm(true);
-    setTimeout(() => {
-      document.getElementById('generate-recipe-form')?.scrollIntoView({ behavior: 'smooth' });
-    }, 100);
+  // Fonction pour gérer la navigation entre les pages
+  const handleNavigate = (pageId, sectionId = null) => {
+    setIsMobileMenuOpen(false); // Ferme le menu mobile lors de la navigation
+    setCurrentPage(pageId);
+    if (sectionId && pageId === 'home') {
+      setTimeout(() => {
+        const section = document.getElementById(sectionId);
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500); // Délai pour laisser la transition de page se terminer
+    } else if (pageId === 'createRecipe') {
+        // Optionnel: Faire défiler la page de création en haut si elle est longue
+        setTimeout(() => {
+            const formSection = document.getElementById('generate-recipe-form');
+            if (formSection) {
+                formSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        }, 500);
+    }
   };
 
   // Fonction pour basculer le menu mobile
@@ -198,18 +214,18 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
       {/* Header avec navigation améliorée */}
-      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative">
+      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20"> {/* Ajout de z-20 pour que le menu soit au-dessus */}
         <div className="flex items-center space-x-2">
           {/* Logo AI & Fines Herbes avec icône de feuille */}
           <LeafIcon />
           <span className="font-bold text-2xl text-green-700">AI & Fines Herbes</span>
         </div>
         <nav className="hidden md:flex space-x-6 text-lg">
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
-          <a href="#generate-recipe-form" className="text-gray-600 hover:text-green-700 transition-colors flex items-center" onClick={scrollToForm}><BrainIcon className="mr-1"/> Créer</a>
-          <a href="#existing-recipes" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
-          <a href="#newsletter" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
+          <a href="#" onClick={() => handleNavigate('home')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
+          <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
+          <a href="#" onClick={() => handleNavigate('createRecipe')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</a>
+          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
+          <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
         {/* Burger menu pour mobile (englobe le bouton et le menu déroulant) */}
         <div className="relative md:hidden"> {/* Nouveau conteneur relatif pour le positionnement */}
@@ -218,440 +234,430 @@ function App() {
           </button>
           {isMobileMenuOpen && (
             <nav className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
-              <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
-              <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
-              <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
-              <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
-              <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
+              <a href="#" onClick={() => handleNavigate('home')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
+              <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
+              <a href="#" onClick={() => handleNavigate('createRecipe')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
+              <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
+              <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
             </nav>
           )}
         </div>
       </header>
 
-      {/* Section Héro - Première partie de la maquette (Magnifiée) */}
-      <section className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
-          <div className="md:w-1/2 text-left z-10"> {/* z-10 pour être au-dessus des éléments décoratifs */}
-            <h1 className="text-5xl md:text-7xl font-extrabold text-green-900 leading-tight mb-6 animate-fade-in-up">
-              L'art culinaire redéfini par l'IA.
-            </h1>
-            <p className="text-xl md:text-2xl text-gray-800 mb-10 animate-fade-in-up delay-200">
-              Des recettes créées sur mesure, des courses simplifiées, un impact positif.
-            </p>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up delay-400">
-              <button
-                onClick={scrollToForm}
-                className="px-8 py-4 bg-green-700 text-white font-bold rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg"
-              >
-                <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
-              </button>
-              <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg">
-                <ShoppingCartIcon className="mr-3 h-6 w-6" /> Découvrez le panier
-              </button>
-            </div>
-          </div>
-          <div className="md:w-1/2 flex justify-center items-center z-10">
-            {/* Image de haute qualité: Une composition de plats frais, légumes et peut-être une tablette avec une recette */}
-            <img 
-              src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Plat de cuisine saine généré par IA" 
-              className="w-full max-w-lg rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 ease-out animate-fade-in-right"
-            />
-          </div>
-        </div>
-        {/* Éléments décoratifs en arrière-plan */}
-        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-          <div className="absolute w-64 h-64 bg-green-300 rounded-full opacity-20 blur-3xl -top-16 -left-16 animate-blob-1"></div>
-          <div className="absolute w-80 h-80 bg-yellow-300 rounded-full opacity-15 blur-3xl bottom-0 -right-24 animate-blob-2"></div>
-        </div>
-      </section>
+      {/* Main content area, will contain the sliding pages */}
+      <main className="flex-1 w-full overflow-hidden relative">
+        <div className={`flex w-[200%] h-full transition-transform duration-500 ease-in-out
+                       ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-1/2'}`}>
+          
+          {/* Home Page Content */}
+          <div className="min-w-1/2 flex-shrink-0 flex flex-col items-stretch">
+            <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
+              <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
+                <div className="md:w-1/2 text-left z-10">
+                  <h1 className="text-5xl md:text-7xl font-extrabold text-green-900 leading-tight mb-6 animate-fade-in-up">
+                    L'art culinaire redéfini par l'IA.
+                  </h1>
+                  <p className="text-xl md:text-2xl text-gray-800 mb-10 animate-fade-in-up delay-200">
+                    Des recettes créées sur mesure, des courses simplifiées, un impact positif.
+                  </p>
+                  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up delay-400">
+                    <button
+                      onClick={() => handleNavigate('createRecipe')}
+                      className="px-8 py-4 bg-green-700 text-white font-bold rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg"
+                    >
+                      <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
+                    </button>
+                    <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg">
+                      <ShoppingCartIcon className="mr-3 h-6 w-6" /> Découvrez le panier
+                    </button>
+                  </div>
+                </div>
+                <div className="md:w-1/2 flex justify-center items-center z-10">
+                  <img 
+                    src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Plat de cuisine saine généré par IA" 
+                    className="w-full max-w-lg rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 ease-out animate-fade-in-right"
+                  />
+                </div>
+              </div>
+              <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+                <div className="absolute w-64 h-64 bg-green-300 rounded-full opacity-20 blur-3xl -top-16 -left-16 animate-blob-1"></div>
+                <div className="absolute w-80 h-80 bg-yellow-300 rounded-full opacity-15 blur-3xl bottom-0 -right-24 animate-blob-2"></div>
+              </div>
+            </section>
 
-      {/* Section "Comment ça marche" - Plus Visuelle et Aérée */}
-      <section className="py-16 px-6 md:px-12 text-center bg-white rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-14">Votre Parcours Culinaire Simplifié</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
-            <LightbulbIcon className="h-20 w-20 text-green-600 mb-6" />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-3">Exprimez vos envies</h3>
-            <p className="text-gray-600 leading-relaxed">Type de cuisine, ingrédients préférés, régime alimentaire, durée... Laissez libre cours à votre imagination.</p>
-          </div>
-          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
-            <BrainIcon className="h-20 w-20 text-green-600 mb-6" />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-3">L'IA Imagine et Crée</h3>
-            <p className="text-gray-600 leading-relaxed">Notre intelligence artificielle génère une recette unique et parfaitement adaptée à vos critères, en un instant.</p>
-          </div>
-          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
-            <PackageIcon className="h-20 w-20 text-green-600 mb-6" />
-            <h3 className="text-2xl font-semibold text-gray-800 mb-3">Cuisinez et Savourez</h3>
-            <p className="text-gray-600 leading-relaxed">Accédez à la recette, gérez votre liste de courses, et préparez un repas délicieux. Zéro tracas, plaisir maximal !</p>
-          </div>
-        </div>
-      </section>
+            <section id="how-it-works" className="py-16 px-6 md:px-12 text-center bg-white rounded-xl mx-4 my-6 shadow-lg">
+              <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-14">Votre Parcours Culinaire Simplifié</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
+                <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+                  <LightbulbIcon className="h-20 w-20 text-green-600 mb-6" />
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-3">Exprimez vos envies</h3>
+                  <p className="text-gray-600 leading-relaxed">Type de cuisine, ingrédients préférés, régime alimentaire, durée... Laissez libre cours à votre imagination.</p>
+                </div>
+                <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+                  <BrainIcon className="h-20 w-20 text-green-600 mb-6" />
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-3">L'IA Imagine et Crée</h3>
+                  <p className="text-gray-600 leading-relaxed">Notre intelligence artificielle génère une recette unique et parfaitement adaptée à vos critères, en un instant.</p>
+                </div>
+                <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+                  <PackageIcon className="h-20 w-20 text-green-600 mb-6" />
+                  <h3 className="text-2xl font-semibold text-gray-800 mb-3">Cuisinez et Savourez</h3>
+                  <p className="text-gray-600 leading-relaxed">Accédez à la recette, gérez votre liste de courses, et préparez un repas délicieux. Zéro tracas, plaisir maximal !</p>
+                </div>
+              </div>
+            </section>
 
-      {/* Section "Technologie Responsable" - Mieux Illustrée */}
-      <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16 px-6 md:px-12 rounded-xl mx-4 my-6 shadow-lg">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:space-x-12">
-          <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-            <h2 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">Une Technologie au Service du Bien-Manger</h2>
-            <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Notre IA est conçue avec une approche éthique et durable, favorisant les produits frais, de saison, et réduisant le gaspillage alimentaire. Chaque recette est pensée pour votre santé et celle de la planète.
-            </p>
-            <p className="text-lg text-gray-700 leading-relaxed">
-              La qualité et la sécurité sont nos priorités. Toutes les créations de l'IA sont soumises à une supervision humaine rigoureuse pour vous garantir une expérience culinaire irréprochable.
-            </p>
-          </div>
-          <div className="md:w-1/2 flex justify-center">
-            {/* Image de haute qualité: Une personne en train de cuisiner avec des ingrédients frais, ou un plan de travail propre avec des légumes et une tablette */}
-            <img 
-              src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Cuisine saine et éthique" 
-              className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out" 
-            />
-          </div>
-        </div>
-      </section>
+            <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16 px-6 md:px-12 rounded-xl mx-4 my-6 shadow-lg">
+              <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:space-x-12">
+                <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
+                  <h2 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">Une Technologie au Service du Bien-Manger</h2>
+                  <p className="text-lg text-gray-700 leading-relaxed mb-6">
+                    Notre IA est conçue avec une approche éthique et durable, favorisant les produits frais, de saison, et réduisant le gaspillage alimentaire. Chaque recette est pensée pour votre santé et celle de la planète.
+                  </p>
+                  <p className="text-lg text-gray-700 leading-relaxed">
+                    La qualité et la sécurité sont nos priorités. Toutes les créations de l'IA sont soumises à une supervision humaine rigoureuse pour vous garantir une expérience culinaire irréprochable.
+                  </p>
+                </div>
+                <div className="md:w-1/2 flex justify-center">
+                  <img 
+                    src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Cuisine saine et éthique" 
+                    className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out" 
+                  />
+                </div>
+              </div>
+            </section>
 
-      {/* Nouvelle Section: Carrousel d'Images de Recettes (Scrolling) */}
-      <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg" id="recipe-carousel-section">
-        <h2 className="text-4xl md:text-5xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
-        <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
-          Plongez dans notre collection de recettes visuellement appétissantes et laissez-vous inspirer pour votre prochain chef-d'œuvre culinaire.
-        </p>
-        <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide">
-          {/* Exemple de Cartes de Recettes (vous pouvez en ajouter plus) */}
-          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-            <img 
-              src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Salade Fraîche et Végétarienne" 
-              className="w-full h-52 object-cover rounded-t-2xl" 
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
-              <p className="text-gray-600 text-sm">Un plat léger et rapide, parfait pour l'été.</p>
-              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
-            </div>
-          </div>
+            <section id="recipe-carousel-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
+              <h2 className="text-4xl md:text-5xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
+              <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                Plongez dans notre collection de recettes visuellement appétissantes et laissez-vous inspirer pour votre prochain chef-d'œuvre culinaire.
+              </p>
+              <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide">
+                <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+                  <img 
+                    src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Salade Fraîche et Végétarienne" 
+                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
+                    <p className="text-gray-600 text-sm">Un plat léger et rapide, parfait pour l'été.</p>
+                    <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+                  </div>
+                </div>
 
-          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-            <img 
-              src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Curry de Poulet aux Épices Douces" 
-              className="w-full h-52 object-cover rounded-t-2xl" 
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
-              <p className="text-gray-600 text-sm">Un classique réconfortant pour les soirées fraîches.</p>
-              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
-            </div>
-          </div>
+                <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+                  <img 
+                    src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Curry de Poulet aux Épices Douces" 
+                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
+                    <p className="text-gray-600 text-sm">Un classique réconfortant pour les soirées fraîches.</p>
+                    <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+                  </div>
+                </div>
 
-          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-            <img 
-              src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Pâtes Crémeuses aux Champignons" 
-              className="w-full h-52 object-cover rounded-t-2xl" 
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
-              <p className="text-gray-600 text-sm">Rapidité et saveur, le plat idéal pour un dîner express.</p>
-              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
-            </div>
-          </div>
+                <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+                  <img 
+                    src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Pâtes Crémeuses aux Champignons" 
+                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
+                    <p className="text-gray-600 text-sm">Rapidité et saveur, le plat idéal pour un dîner express.</p>
+                    <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+                  </div>
+                </div>
 
-          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-            <img 
-              src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-              alt="Soupe de Lentilles Corail et Carottes" 
-              className="w-full h-52 object-cover rounded-t-2xl" 
-            />
-            <div className="p-6">
-              <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
-              <p className="text-gray-600 text-sm">Une soupe réconfortante et pleine de nutriments.</p>
-              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
-            </div>
-          </div>
+                <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+                  <img 
+                    src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+                    alt="Soupe de Lentilles Corail et Carottes" 
+                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  />
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
+                    <p className="text-gray-600 text-sm">Une soupe réconfortante et pleine de nutriments.</p>
+                    <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+                  </div>
+                </div>
 
-          {/* Ajoutez plus de cartes ici */}
-        </div>
-      </section>
-      
-      {/* Formulaire de Génération de Recettes - Conditionnellement affiché ou défilé */}
-      <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Générez Votre Recette Personnalisée !</h2>
-        <form onSubmit={(e) => handleSubmit(e, 'generateAI')} className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
-          {error && <p className="text-red-600 text-center font-medium">{error}</p>}
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="cuisineType" className="block text-gray-700 font-semibold mb-2">Type de cuisine</label>
-              <input
-                type="text"
-                id="cuisineType"
-                name="cuisineType"
-                value={preferences.cuisineType}
-                onChange={handleChange}
-                placeholder="Ex: Méditerranéenne, Asiatique..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="numPeople" className="block text-gray-700 font-semibold mb-2">Nombre de personnes</label>
-              <input
-                type="number"
-                id="numPeople"
-                name="numPeople"
-                value={preferences.numPeople}
-                onChange={handleChange}
-                min="1"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="maxDuration" className="block text-gray-700 font-semibold mb-2">Durée maximale (min)</label>
-              <input
-                type="number"
-                id="maxDuration"
-                name="maxDuration"
-                value={preferences.maxDuration}
-                onChange={handleChange}
-                min="10"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Niveau de difficulté</label>
-              <select
-                id="difficulty"
-                name="difficulty"
-                value={preferences.difficulty}
-                onChange={handleChange}
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white"
-              >
-                <option value="Facile">Facile</option>
-                <option value="Moyen">Moyen</option>
-                <option value="Difficile">Difficile</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="ingredients" className="block text-gray-700 font-semibold mb-2">Ingrédients (séparés par des virgules)</label>
-            <textarea
-              id="ingredients"
-              name="ingredients"
-              value={preferences.ingredients}
-              onChange={handleChange}
-              rows="3"
-              placeholder="Ex: poulet, brocoli, riz, sauce soja..."
-              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-            ></textarea>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label htmlFor="maxIngredients" className="block text-gray-700 font-semibold mb-2">Max. ingrédients</label>
-              <input
-                type="number"
-                id="maxIngredients"
-                name="maxIngredients"
-                value={preferences.maxIngredients}
-                onChange={handleChange}
-                min="1"
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="recipeGoal" className="block text-gray-700 font-semibold mb-2">Objectif de la recette</label>
-              <input
-                type="text"
-                id="recipeGoal"
-                name="recipeGoal"
-                value={preferences.recipeGoal}
-                onChange={handleChange}
-                placeholder="Ex: Rapide, Sain, Pour enfants..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center">
-            <input
-              type="checkbox"
-              id="robotCompatible"
-              name="robotCompatible"
-              checked={preferences.robotCompatible}
-              onChange={handleChange}
-              className="mr-2 h-5 w-5 text-green-600 rounded focus:ring-green-500"
-            />
-            <label htmlFor="robotCompatible" className="text-gray-700 font-semibold">Compatible robot de cuisine</label>
-            <KitchenRobotIcon className="ml-2 h-6 w-6 text-gray-600" />
-          </div>
-
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
-              <button
-                  type="submit" 
-                  className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                  disabled={loading}
-              >
-                  {loading ? (
-                  <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Génération AI en cours...
-                  </>
-                  ) : (
-                  <>
-                      <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette IA
-                  </>
+                {/* Ajoutez plus de cartes ici */}
+              </div>
+            </section>
+            
+            {/* Affichage de la Recette Générée sur la page d'accueil (peut-être après la section explore) */}
+            {generatedRecipe && (
+              <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
+                <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
+                  <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
+                    <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
+                  </h2>
+                  {generatedRecipe.imageUrl && (
+                    <img 
+                      src={generatedRecipe.imageUrl} 
+                      alt={generatedRecipe.title} 
+                      className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
+                      onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
+                    />
                   )}
-              </button>
-              <button
-                  type="button" // Utilisez 'button' pour ne pas soumettre le formulaire
-                  onClick={(e) => handleSubmit(e, 'searchExisting')}
-                  className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                  disabled={loading}
-              >
-                  {loading ? ( // La même animation de chargement pour la cohérence
-                  <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                      </svg>
-                      Recherche en cours...
-                  </>
-                  ) : (
-                  <>
-                      <ShoppingCartIcon className="mr-2 h-6 w-6" /> Rechercher une Recette Ex. par Ingrédients
-                  </>
-                  )}
-              </button>
-          </div>
-
-          {/* Bouton pour basculer le mode Mock (pour les tests) */}
-          <div className="text-center mt-4">
-            <button
-              type="button"
-              onClick={() => setMockMode(!mockMode)}
-              className={`text-sm py-2 px-4 rounded-full transition-colors duration-200 ${
-                mockMode ? 'bg-blue-200 text-blue-800 hover:bg-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-              }`}
-            >
-              Mode Mock: {mockMode ? 'Activé' : 'Désactivé'}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      {/* Affichage de la Recette Générée */}
-      {generatedRecipe && (
-        <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
-          <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
-            <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
-              <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
-            </h2>
-            {/* Affichage de l'image de la recette si disponible */}
-            {generatedRecipe.imageUrl && (
-              <img 
-                src={generatedRecipe.imageUrl} 
-                alt={generatedRecipe.title} 
-                className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
-                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback
-              />
+                  <div className="flex flex-wrap gap-2 mb-4">
+                    {generatedRecipe.aiTested && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                        Recette testée par l'IA
+                      </span>
+                    )}
+                    {generatedRecipe.robotCompatible && (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        Compatible robot de cuisine
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-700 mb-4">
+                    <span className="font-semibold">Durée :</span> {generatedRecipe.duration}
+                  </p>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
+                  <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
+                    {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
+                      <li key={index}>
+                        <span className="font-semibold">{item.name}</span>: {item.quantity}
+                      </li>
+                    ))}
+                  </ul>
+                  <h3 className="text-2xl font-bold text-gray-800 mb-3">Étapes :</h3>
+                  <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                    {generatedRecipe.steps && generatedRecipe.steps.map((step, index) => (
+                      <li key={index}>{step}</li>
+                    ))}
+                  </ol>
+                  <div className="flex flex-wrap justify-center gap-4 mt-8">
+                    <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
+                      Ajouter au panier
+                    </button>
+                    <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
+                      Exporter pour Robot
+                    </button>
+                    <button className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-300 transition-colors duration-200">
+                      Noter la recette
+                    </button>
+                  </div>
+                </div>
+              </section>
             )}
 
-            {/* Badges */}
-            <div className="flex flex-wrap gap-2 mb-4">
-              {generatedRecipe.aiTested && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                  Recette testée par l'IA
-                </span>
-              )}
-              {generatedRecipe.robotCompatible && (
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                  Compatible robot de cuisine
-                </span>
-              )}
-            </div>
+            <section id="existing-recipes" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+              <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
+              <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+                Explorez une variété de créations culinaires déjà disponibles, adaptées à divers goûts et besoins.
+              </p>
+              <div className="text-center p-8 bg-gray-100 rounded-lg">
+                  <p className="text-xl text-gray-600 font-semibold">Le composant RecipeList sera affiché ici.</p>
+                  <p className="text-gray-500">Assurez-vous qu'il est importé et rendu dans votre App.jsx.</p>
+              </div>
+            </section>
 
-            <p className="text-gray-700 mb-4">
-              <span className="font-semibold">Durée :</span> {generatedRecipe.duration}
-            </p>
-
-            <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
-            <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
-              {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
-                <li key={index}>
-                  <span className="font-semibold">{item.name}</span>: {item.quantity}
-                </li>
-              ))}
-            </ul>
-
-            <h3 className="text-2xl font-bold text-gray-800 mb-3">Étapes :</h3>
-            <ol className="list-decimal list-inside text-gray-700 space-y-2">
-              {generatedRecipe.steps && generatedRecipe.steps.map((step, index) => (
-                <li key={index}>{step}</li>
-              ))}
-            </ol>
-
-            {/* Boutons d'action pour la recette */}
-            <div className="flex flex-wrap justify-center gap-4 mt-8">
-              <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
-                Ajouter au panier
-              </button>
-              <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
-                Exporter pour Robot
-              </button>
-              <button className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-300 transition-colors duration-200">
-                Noter la recette
-              </button>
-            </div>
+            <section id="newsletter" className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
+              <h2 className="text-4xl md:text-5xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+              <p className="text-lg mb-8 max-w-3xl mx-auto">
+                Abonnez-vous à notre newsletter pour ne jamais manquer une inspiration culinaire personnalisée, des astuces anti-gaspillage et des offres exclusives.
+              </p>
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <input
+                  type="email"
+                  placeholder="Votre adresse email..."
+                  className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+                />
+                <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
+                  Je m'inscris
+                </button>
+              </div>
+            </section>
           </div>
-        </section>
-      )}
 
-      {/* Section des Recettes Existantes (Utilise le composant RecipeList) */}
-      <section id="existing-recipes" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
-        {/* Le titre du composant RecipeList est déjà à l'intérieur de RecipeList.jsx */}
-        {/* Assurez-vous que RecipeList.jsx est bien importé dans App.jsx */}
-        {/* Example: <RecipeList /> */}
-        <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
-        <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
-          Explorez une variété de créations culinaires déjà disponibles, adaptées à divers goûts et besoins.
-        </p>
-        {/* Ici, vous intégreriez le composant RecipeList */}
-        {/* Pour l'instant, je ne l'inclus pas directement dans ce Canvas car il est dans un autre fichier.
-            Mais imaginez qu'il est là et qu'il affiche la liste des recettes. */}
-        <div className="text-center p-8 bg-gray-100 rounded-lg">
-            {/* Ceci est un placeholder visuel. Le vrai RecipeList doit être importé et utilisé. */}
-            <p className="text-xl text-gray-600 font-semibold">Le composant RecipeList sera affiché ici.</p>
-            <p className="text-gray-500">Assurez-vous qu'il est importé et rendu dans votre App.jsx.</p>
-            {/* <RecipeList />  -- Décommentez ceci dans votre App.jsx après avoir créé RecipeList.jsx */}
-        </div>
-      </section>
+          {/* Create Recipe Page Content */}
+          <div className="min-w-1/2 flex-shrink-0 flex flex-col items-stretch">
+            <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
+              <div className="flex items-center mb-6">
+                <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                </button>
+                <h2 className="text-4xl font-bold text-green-800">Générez Votre Recette Personnalisée !</h2>
+              </div>
+              <form onSubmit={(e) => handleSubmit(e, 'generateAI')} className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
+                {error && <p className="text-red-600 text-center font-medium">{error}</p>}
 
-      {/* Section Newsletter - En bas de page (Stylisée) */}
-      <section id="newsletter" className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl md:text-5xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
-        <p className="text-lg mb-8 max-w-3xl mx-auto">
-          Abonnez-vous à notre newsletter pour ne jamais manquer une inspiration culinaire personnalisée, des astuces anti-gaspillage et des offres exclusives.
-        </p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <input
-            type="email"
-            placeholder="Votre adresse email..."
-            className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
-          />
-          <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
-            Je m'inscris
-          </button>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="cuisineType" className="block text-gray-700 font-semibold mb-2">Type de cuisine</label>
+                    <input
+                      type="text"
+                      id="cuisineType"
+                      name="cuisineType"
+                      value={preferences.cuisineType}
+                      onChange={handleChange}
+                      placeholder="Ex: Méditerranéenne, Asiatique..."
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="numPeople" className="block text-gray-700 font-semibold mb-2">Nombre de personnes</label>
+                    <input
+                      type="number"
+                      id="numPeople"
+                      name="numPeople"
+                      value={preferences.numPeople}
+                      onChange={handleChange}
+                      min="1"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="maxDuration" className="block text-gray-700 font-semibold mb-2">Durée maximale (min)</label>
+                    <input
+                      type="number"
+                      id="maxDuration"
+                      name="maxDuration"
+                      value={preferences.maxDuration}
+                      onChange={handleChange}
+                      min="10"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Niveau de difficulté</label>
+                    <select
+                      id="difficulty"
+                      name="difficulty"
+                      value={preferences.difficulty}
+                      onChange={handleChange}
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white"
+                    >
+                      <option value="Facile">Facile</option>
+                      <option value="Moyen">Moyen</option>
+                      <option value="Difficile">Difficile</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="ingredients" className="block text-gray-700 font-semibold mb-2">Ingrédients (séparés par des virgules)</label>
+                  <textarea
+                    id="ingredients"
+                    name="ingredients"
+                    value={preferences.ingredients}
+                    onChange={handleChange}
+                    rows="3"
+                    placeholder="Ex: poulet, brocoli, riz, sauce soja..."
+                    className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                  ></textarea>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label htmlFor="maxIngredients" className="block text-gray-700 font-semibold mb-2">Max. ingrédients</label>
+                    <input
+                      type="number"
+                      id="maxIngredients"
+                      name="maxIngredients"
+                      value={preferences.maxIngredients}
+                      onChange={handleChange}
+                      min="1"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label htmlFor="recipeGoal" className="block text-gray-700 font-semibold mb-2">Objectif de la recette</label>
+                    <input
+                      type="text"
+                      id="recipeGoal"
+                      name="recipeGoal"
+                      value={preferences.recipeGoal}
+                      onChange={handleChange}
+                      placeholder="Ex: Rapide, Sain, Pour enfants..."
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-center">
+                  <input
+                    type="checkbox"
+                    id="robotCompatible"
+                    name="robotCompatible"
+                    checked={preferences.robotCompatible}
+                    onChange={handleChange}
+                    className="mr-2 h-5 w-5 text-green-600 rounded focus:ring-green-500"
+                  />
+                  <label htmlFor="robotCompatible" className="text-gray-700 font-semibold">Compatible robot de cuisine</label>
+                  <KitchenRobotIcon className="ml-2 h-6 w-6 text-gray-600" />
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                    <button
+                        type="submit" 
+                        className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                        <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Génération AI en cours...
+                        </>
+                        ) : (
+                        <>
+                            <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette IA
+                        </>
+                        )}
+                    </button>
+                    <button
+                        type="button"
+                        onClick={(e) => handleSubmit(e, 'searchExisting')}
+                        className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                        disabled={loading}
+                    >
+                        {loading ? (
+                        <>
+                            <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Recherche en cours...
+                        </>
+                        ) : (
+                        <>
+                            <ShoppingCartIcon className="mr-2 h-6 w-6" /> Rechercher une Recette Ex. par Ingrédients
+                        </>
+                        )}
+                    </button>
+                </div>
+
+                <div className="text-center mt-4">
+                  <button
+                    type="button"
+                    onClick={() => setMockMode(!mockMode)}
+                    className={`text-sm py-2 px-4 rounded-full transition-colors duration-200 ${
+                      mockMode ? 'bg-blue-200 text-blue-800 hover:bg-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Mode Mock: {mockMode ? 'Activé' : 'Désactivé'}
+                  </button>
+                </div>
+              </form>
+            </section>
+          </div>
         </div>
-      </section>
+      </main>
 
       {/* Pied de page simple et élégant */}
       <footer className="bg-gray-800 text-gray-300 py-8 text-center rounded-t-xl mt-auto">
