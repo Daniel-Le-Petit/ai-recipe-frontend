@@ -32,7 +32,14 @@ const RecipeList = () => {
 
         const data = await response.json();
         // Strapi renvoie les données de collection sous la forme { data: [...], meta: {...} }
-        setRecipes(data.data); 
+        // Vérifie si data.data est un tableau avant de le définir
+        if (Array.isArray(data.data)) {
+          setRecipes(data.data); 
+        } else {
+          // Log pour comprendre une structure de réponse inattendue
+          console.error("La réponse de l'API /api/recipies n'est pas un tableau de données attendu:", data);
+          setError("Structure de données inattendue reçue du serveur.");
+        }
       } catch (err) {
         console.error("Erreur lors de la récupération des recettes:", err);
         setError("Erreur lors du chargement des recettes. Veuillez réessayer.");
@@ -73,55 +80,67 @@ const RecipeList = () => {
     <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
       <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Nos Recettes Existantess</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {recipes.map((recipe) => (
-          <div key={recipe.id} className="bg-white rounded-2xl shadow-xl border border-green-200 overflow-hidden">
-            {/* Affichage de l'image de la recette */}
-            {recipe.attributes.imageUrl && (
-              <img
-                src={recipe.attributes.imageUrl}
-                alt={recipe.attributes.title}
-                className="w-full h-48 object-cover"
-                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
-              />
-            )}
-            <div className="p-6">
-              <h3 className="text-2xl font-bold text-green-700 mb-3">{recipe.attributes.title}</h3>
-              <p className="text-gray-700 mb-2">
-                <span className="font-semibold">Durée :</span> {recipe.attributes.duration}
-              </p>
-              <p className="text-gray-700 mb-2">
-                <span className="font-semibold">Difficulté :</span> {recipe.attributes.difficulty}
-              </p>
-              <p className="text-gray-700 mb-4">
-                <span className="font-semibold">Personnes :</span> {recipe.attributes.numPeople}
-              </p>
+        {recipes.map((recipe) => {
+          // Ajout d'un log pour inspecter chaque objet 'recipe'
+          console.log("Processing recipe:", recipe);
 
-              <h4 className="text-xl font-bold text-gray-800 mb-2">Ingrédients :</h4>
-              <ul className="list-disc list-inside text-gray-700 space-y-1 mb-4">
-                {recipe.attributes.ingredients && Array.isArray(recipe.attributes.ingredients) ? (
-                  recipe.attributes.ingredients.map((item, index) => (
-                    <li key={index}>
-                      <span className="font-semibold">{item.name}</span>: {item.quantity}
-                    </li>
-                  ))
-                ) : (
-                  <li>Aucun ingrédient spécifié.</li>
-                )}
-              </ul>
+          // Vérification explicite de 'attributes' pour éviter l'erreur
+          if (!recipe || !recipe.attributes) {
+            console.warn("Skipping malformed recipe (missing id or attributes):", recipe);
+            return null; // Ignore les recettes malformées pour éviter le crash
+          }
 
-              <h4 className="text-xl font-bold text-gray-800 mb-2">Étapes :</h4>
-              <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                {recipe.attributes.steps && Array.isArray(recipe.attributes.steps) ? (
-                  recipe.attributes.steps.map((step, index) => (
-                    <li key={index}>{step}</li>
-                  ))
-                ) : (
-                  <li>Aucune étape spécifiée.</li>
-                )}
-              </ol>
+          return (
+            <div key={recipe.id} className="bg-white rounded-2xl shadow-xl border border-green-200 overflow-hidden">
+              {/* Affichage de l'image de la recette avec chaînage optionnel */}
+              {recipe.attributes?.imageUrl && (
+                <img
+                  src={recipe.attributes.imageUrl}
+                  alt={recipe.attributes.title || 'Image de recette'}
+                  className="w-full h-48 object-cover"
+                  onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
+                />
+              )}
+              <div className="p-6">
+                {/* Accès aux attributs avec chaînage optionnel */}
+                <h3 className="text-2xl font-bold text-green-700 mb-3">{recipe.attributes?.title || 'Titre inconnu'}</h3>
+                <p className="text-gray-700 mb-2">
+                  <span className="font-semibold">Durée :</span> {recipe.attributes?.duration || 'N/A'}
+                </p>
+                <p className="text-gray-700 mb-2">
+                  <span className="font-semibold">Difficulté :</span> {recipe.attributes?.difficulty || 'N/A'}
+                </p>
+                <p className="text-gray-700 mb-4">
+                  <span className="font-semibold">Personnes :</span> {recipe.attributes?.numPeople || 'N/A'}
+                </p>
+
+                <h4 className="text-xl font-bold text-gray-800 mb-2">Ingrédients :</h4>
+                <ul className="list-disc list-inside text-gray-700 space-y-1 mb-4">
+                  {recipe.attributes?.ingredients && Array.isArray(recipe.attributes.ingredients) ? (
+                    recipe.attributes.ingredients.map((item, index) => (
+                      <li key={index}>
+                        <span className="font-semibold">{item.name || 'Nom inconnu'}</span>: {item.quantity || 'Quantité inconnue'}
+                      </li>
+                    ))
+                  ) : (
+                    <li>Aucun ingrédient spécifié.</li>
+                  )}
+                </ul>
+
+                <h4 className="text-xl font-bold text-gray-800 mb-2">Étapes :</h4>
+                <ol className="list-decimal list-inside text-gray-700 space-y-1">
+                  {recipe.attributes?.steps && Array.isArray(recipe.attributes.steps) ? (
+                    recipe.attributes.steps.map((step, index) => (
+                      <li key={index}>{step || 'Étape inconnue'}</li>
+                    ))
+                  ) : (
+                    <li>Aucune étape spécifiée.</li>
+                  )}
+                </ol>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
