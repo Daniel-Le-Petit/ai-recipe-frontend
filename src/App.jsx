@@ -86,6 +86,7 @@ function App() {
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [showRecipeForm, setShowRecipeForm] = useState(false); // Pour contrôler la visibilité du formulaire
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
@@ -188,11 +189,16 @@ function App() {
     }, 100);
   };
 
+  // Fonction pour basculer le menu mobile
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
       {/* Header avec navigation améliorée */}
-      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl">
+      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20"> {/* Ajout de z-20 pour que le menu soit au-dessus */}
         <div className="flex items-center space-x-2">
           {/* Logo AI & Fines Herbes avec icône de feuille */}
           <LeafIcon />
@@ -205,11 +211,22 @@ function App() {
           <a href="#existing-recipes" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
           <a href="#newsletter" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
-        {/* Burger menu pour mobile - conceptuel */}
-        <button className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors">
-          <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        {/* Burger menu pour mobile */}
+        <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors">
+          <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
         </button>
       </header>
+
+      {/* Menu déroulant pour mobile (conditionnellement affiché) */}
+      {isMobileMenuOpen && (
+        <nav className="md:hidden absolute top-full right-4 bg-white border border-gray-200 rounded-lg shadow-xl py-4 z-10 w-64">
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
+          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
+          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
+          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
+          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
+        </nav>
+      )}
 
       {/* Section Héro - Première partie de la maquette (Magnifiée) */}
       <section className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
