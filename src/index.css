@@ -3,7 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Appliquer la police Inter à tout le corps du document */
-body {
-  font-family: 'Inter', sans-serif;
+/* src/index.css */
+html, body, #root {
+  height: 100%; /* Important pour que l'application prenne toute la hauteur du viewport */
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Empêche le défilement global du body lorsque les pages glissent */
 }
