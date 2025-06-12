@@ -246,11 +246,15 @@ function App() {
 
       {/* Main content area, will contain the sliding pages */}
       <main className="flex-1 w-full overflow-hidden relative">
-        <div className={`flex w-[200%] h-full transition-transform duration-500 ease-in-out
-                       ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-1/2'}`}>
-          
+        {/*
+          Modifié : Chaque "page" est maintenant absolument positionnée.
+          Seule la page active sera en translateX(0), les autres seront en translateX(100%) ou translateX(-100%).
+          Ceci assure que chaque page occupe 100% de la largeur de la fenêtre et qu'une seule est visible à la fois.
+        */}
+        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
+                       ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}> {/* Added overflow-y-auto */}
           {/* Home Page Content */}
-          <div className="min-w-1/2 flex-shrink-0 flex flex-col items-stretch">
+          <div className="flex flex-col items-stretch h-full w-full"> {/* Ajout de h-full w-full pour que la section prenne toute la place */}
             <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
               <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
                 <div className="md:w-1/2 text-left z-10">
@@ -267,15 +271,15 @@ function App() {
                     >
                       <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
                     </button>
-                    <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg">
+                    <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
                       <ShoppingCartIcon className="mr-3 h-6 w-6" /> Découvrez le panier
                     </button>
                   </div>
                 </div>
                 <div className="md:w-1/2 flex justify-center items-center z-10">
-                  <img 
-                    src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Plat de cuisine saine généré par IA" 
+                  <img
+                    src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Plat de cuisine saine généré par IA"
                     className="w-full max-w-lg rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 ease-out animate-fade-in-right"
                   />
                 </div>
@@ -319,10 +323,10 @@ function App() {
                   </p>
                 </div>
                 <div className="md:w-1/2 flex justify-center">
-                  <img 
-                    src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Cuisine saine et éthique" 
-                    className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out" 
+                  <img
+                    src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Cuisine saine et éthique"
+                    className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out"
                   />
                 </div>
               </div>
@@ -335,10 +339,10 @@ function App() {
               </p>
               <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide">
                 <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-                  <img 
-                    src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Salade Fraîche et Végétarienne" 
-                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  <img
+                    src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Salade Fraîche et Végétarienne"
+                    className="w-full h-52 object-cover rounded-t-2xl"
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
@@ -348,10 +352,10 @@ function App() {
                 </div>
 
                 <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-                  <img 
-                    src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Curry de Poulet aux Épices Douces" 
-                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  <img
+                    src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Curry de Poulet aux Épices Douces"
+                    className="w-full h-52 object-cover rounded-t-2xl"
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
@@ -361,10 +365,10 @@ function App() {
                 </div>
 
                 <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-                  <img 
-                    src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Pâtes Crémeuses aux Champignons" 
-                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  <img
+                    src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Pâtes Crémeuses aux Champignons"
+                    className="w-full h-52 object-cover rounded-t-2xl"
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
@@ -374,10 +378,10 @@ function App() {
                 </div>
 
                 <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
-                  <img 
-                    src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
-                    alt="Soupe de Lentilles Corail et Carottes" 
-                    className="w-full h-52 object-cover rounded-t-2xl" 
+                  <img
+                    src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+                    alt="Soupe de Lentilles Corail et Carottes"
+                    className="w-full h-52 object-cover rounded-t-2xl"
                   />
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
@@ -389,7 +393,7 @@ function App() {
                 {/* Ajoutez plus de cartes ici */}
               </div>
             </section>
-            
+
             {/* Affichage de la Recette Générée sur la page d'accueil (peut-être après la section explore) */}
             {generatedRecipe && (
               <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
@@ -398,9 +402,9 @@ function App() {
                     <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
                   </h2>
                   {generatedRecipe.imageUrl && (
-                    <img 
-                      src={generatedRecipe.imageUrl} 
-                      alt={generatedRecipe.title} 
+                    <img
+                      src={generatedRecipe.imageUrl}
+                      alt={generatedRecipe.title}
                       className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
                       onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
                     />
@@ -477,9 +481,12 @@ function App() {
               </div>
             </section>
           </div>
+        </div>
 
-          {/* Create Recipe Page Content */}
-          <div className="min-w-1/2 flex-shrink-0 flex flex-col items-stretch">
+        {/* Create Recipe Page Content - Now separate and absolutely positioned */}
+        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
+                       ${currentPage === 'createRecipe' ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}> {/* Added overflow-y-auto */}
+          <div className="flex flex-col items-stretch h-full w-full"> {/* Ajout de h-full w-full pour que la section prenne toute la place */}
             <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
               <div className="flex items-center mb-6">
                 <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
@@ -602,7 +609,7 @@ function App() {
 
                 <div className="flex flex-col sm:flex-row gap-4 mt-6">
                     <button
-                        type="submit" 
+                        type="submit"
                         className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                         disabled={loading}
                     >
