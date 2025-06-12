@@ -4,10 +4,15 @@ import './index.css'; // Assurez-vous que ce fichier est bien importé et contie
 // Définition des icônes utilisées dans l'interface pour améliorer le visuel
 // Ces icônes sont des SVG inline pour éviter des dépendances externes comme lucide-react pour la prévisualisation.
 
-// Icône de Feuille Verte pour le titre principal (plus détaillée)
+// NOUVEAU Logo Inspirant pour AI & Fines Herbes
 const LeafIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#388E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 18 2.2 18 2c0 2.1-2 3.9-3 5.5C11.9 15.3 8.5 19.5 11 20Z"/><path d="M2 21c0-3 1.8-5.7 4.5-8.5C9.3 10 12 8.2 15 8"/>
+    {/* Forme de la feuille */}
+    <path d="M12 22C12 22 20 13.3137 20 8C20 4.68629 17.3137 2 14 2C10.6863 2 8 4.68629 8 8C8 13.3137 12 22 12 22Z" fill="currentColor"/>
+    {/* Élément subtil IA/connexion à l'intérieur de la feuille */}
+    <circle cx="10" cy="10" r="1.5" fill="white" opacity="0.7"/>
+    <circle cx="14" cy="14" r="1.5" fill="white" opacity="0.7"/>
+    <line x1="10" y1="10" x2="14" y2="14" stroke="white" strokeWidth="1.5" strokeOpacity="0.7"/>
   </svg>
 );
 
