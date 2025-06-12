@@ -91,8 +91,9 @@ const RecipeList = () => {
           console.log("Resolved itemAttributes:", itemAttributes);
 
           // Use itemAttributes.id for the key to ensure it exists
-          if (!itemAttributes || itemAttributes.id === undefined || itemAttributes.id === null) {
-            console.warn("Skipping malformed recipe (missing id or valid attributes):", recipe);
+          // Enhanced check: ensure id is a number and not 0 or falsy if it implies an invalid entry.
+          if (!itemAttributes || typeof itemAttributes.id !== 'number' || itemAttributes.id <= 0) {
+            console.warn("Skipping malformed recipe (missing or invalid id/attributes):", recipe);
             return null; // Ignore malformed recipes
           }
 
