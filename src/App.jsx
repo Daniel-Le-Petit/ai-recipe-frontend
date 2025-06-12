@@ -480,7 +480,6 @@ function App() {
               </div>
             </section>
           </div>
-        </div>
 
         {/* Create Recipe Page Content - Now separate and absolutely positioned */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
