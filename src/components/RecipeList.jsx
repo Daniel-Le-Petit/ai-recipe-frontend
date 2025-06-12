@@ -81,45 +81,62 @@ const RecipeList = () => {
       <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Nos Recettes Existantess</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
         {recipes.map((recipe) => {
-          // Ajout d'un log pour inspecter chaque objet 'recipe'
-          console.log("Processing recipe:", recipe);
+          // Determine the correct object to extract attributes from
+          // This handles cases where attributes might be directly on 'recipe' object
+          // (e.g., for entries created directly in Strapi admin or older versions)
+          // or nested under 'attributes' (standard Strapi API response).
+          const itemAttributes = recipe.attributes || recipe;
 
-          // Vérification explicite de 'attributes' pour éviter l'erreur
-          if (!recipe || !recipe.attributes) {
-            console.warn("Skipping malformed recipe (missing id or attributes):", recipe);
-            return null; // Ignore les recettes malformées pour éviter le crash
+          // Debugging log to see the resolved attributes
+          console.log("Resolved itemAttributes:", itemAttributes);
+
+          // Use itemAttributes.id for the key to ensure it exists
+          if (!itemAttributes || itemAttributes.id === undefined || itemAttributes.id === null) {
+            console.warn("Skipping malformed recipe (missing id or valid attributes):", recipe);
+            return null; // Ignore malformed recipes
           }
 
+          // Further validation for expected array types for ingredients and steps
+          // If ingredients is a single object, wrap it in an array for consistent mapping
+          const displayIngredients = Array.isArray(itemAttributes.ingredients)
+            ? itemAttributes.ingredients
+            : (itemAttributes.ingredients ? [itemAttributes.ingredients] : []); 
+
+          // If steps is an array of objects, extract a 'value' property if present, otherwise assume string
+          const displaySteps = Array.isArray(itemAttributes.steps)
+            ? itemAttributes.steps
+            : []; 
+
           return (
-            <div key={recipe.id} className="bg-white rounded-2xl shadow-xl border border-green-200 overflow-hidden">
-              {/* Affichage de l'image de la recette avec chaînage optionnel */}
-              {recipe.attributes?.imageUrl && (
+            <div key={itemAttributes.id} className="bg-white rounded-2xl shadow-xl border border-green-200 overflow-hidden">
+              {/* Access properties via itemAttributes - no ?. needed as itemAttributes is now guaranteed to exist */}
+              {itemAttributes.imageUrl && (
                 <img
-                  src={recipe.attributes.imageUrl}
-                  alt={recipe.attributes.title || 'Image de recette'}
+                  src={itemAttributes.imageUrl}
+                  alt={itemAttributes.title || 'Image de recette'}
                   className="w-full h-48 object-cover"
                   onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
                 />
               )}
               <div className="p-6">
-                {/* Accès aux attributs avec chaînage optionnel */}
-                <h3 className="text-2xl font-bold text-green-700 mb-3">{recipe.attributes?.title || 'Titre inconnu'}</h3>
+                <h3 className="text-2xl font-bold text-green-700 mb-3">{itemAttributes.title || 'Titre inconnu'}</h3>
                 <p className="text-gray-700 mb-2">
-                  <span className="font-semibold">Durée :</span> {recipe.attributes?.duration || 'N/A'}
+                  <span className="font-semibold">Durée :</span> {itemAttributes.duration || 'N/A'}
                 </p>
                 <p className="text-gray-700 mb-2">
-                  <span className="font-semibold">Difficulté :</span> {recipe.attributes?.difficulty || 'N/A'}
+                  <span className="font-semibold">Difficulté :</span> {itemAttributes.difficulty || 'N/A'}
                 </p>
                 <p className="text-gray-700 mb-4">
-                  <span className="font-semibold">Personnes :</span> {recipe.attributes?.numPeople || 'N/A'}
+                  <span className="font-semibold">Personnes :</span> {itemAttributes.numPeople || 'N/A'}
                 </p>
 
                 <h4 className="text-xl font-bold text-gray-800 mb-2">Ingrédients :</h4>
                 <ul className="list-disc list-inside text-gray-700 space-y-1 mb-4">
-                  {recipe.attributes?.ingredients && Array.isArray(recipe.attributes.ingredients) ? (
-                    recipe.attributes.ingredients.map((item, index) => (
+                  {displayIngredients.length > 0 ? (
+                    displayIngredients.map((item, index) => (
                       <li key={index}>
-                        <span className="font-semibold">{item.name || 'Nom inconnu'}</span>: {item.quantity || 'Quantité inconnue'}
+                        {/* Access 'name' and 'quantity' or 'unit' from ingredient object */}
+                        <span className="font-semibold">{item.name || 'Nom inconnu'}</span>: {item.quantity || (item.unit && item.quantity ? `${item.quantity} ${item.unit}` : 'Quantité inconnue')}
                       </li>
                     ))
                   ) : (
@@ -129,9 +146,11 @@ const RecipeList = () => {
 
                 <h4 className="text-xl font-bold text-gray-800 mb-2">Étapes :</h4>
                 <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                  {recipe.attributes?.steps && Array.isArray(recipe.attributes.steps) ? (
-                    recipe.attributes.steps.map((step, index) => (
-                      <li key={index}>{step || 'Étape inconnue'}</li>
+                  {displaySteps.length > 0 ? (
+                    displaySteps.map((step, index) => (
+                      <li key={index}>
+                        {typeof step === 'string' ? step : (step.value || 'Étape inconnue')} {/* Handle step being an object with a 'value' property or a string */}
+                      </li>
                     ))
                   ) : (
                     <li>Aucune étape spécifiée.</li>
