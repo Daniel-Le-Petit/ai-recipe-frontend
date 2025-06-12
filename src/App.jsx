@@ -288,6 +288,70 @@ function App() {
           </div>
         </div>
       </section>
+
+      {/* Nouvelle Section: Carrousel d'Images de Recettes (Scrolling) */}
+      <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg" id="recipe-carousel-section">
+        <h2 className="text-4xl md:text-5xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
+        <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+          Plongez dans notre collection de recettes visuellement appétissantes et laissez-vous inspirer pour votre prochain chef-d'œuvre culinaire.
+        </p>
+        <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide">
+          {/* Exemple de Cartes de Recettes (vous pouvez en ajouter plus) */}
+          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+            <img 
+              src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Salade Fraîche et Végétarienne" 
+              className="w-full h-52 object-cover rounded-t-2xl" 
+            />
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
+              <p className="text-gray-600 text-sm">Un plat léger et rapide, parfait pour l'été.</p>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+            </div>
+          </div>
+
+          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+            <img 
+              src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Curry de Poulet aux Épices Douces" 
+              className="w-full h-52 object-cover rounded-t-2xl" 
+            />
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
+              <p className="text-gray-600 text-sm">Un classique réconfortant pour les soirées fraîches.</p>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+            </div>
+          </div>
+
+          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+            <img 
+              src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Pâtes Crémeuses aux Champignons" 
+              className="w-full h-52 object-cover rounded-t-2xl" 
+            />
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
+              <p className="text-gray-600 text-sm">Rapidité et saveur, le plat idéal pour un dîner express.</p>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+            </div>
+          </div>
+
+          <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
+            <img 
+              src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Soupe de Lentilles Corail et Carottes" 
+              className="w-full h-52 object-cover rounded-t-2xl" 
+            />
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
+              <p className="text-gray-600 text-sm">Une soupe réconfortante et pleine de nutriments.</p>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+            </div>
+          </div>
+
+          {/* Ajoutez plus de cartes ici */}
+        </div>
+      </section>
       
       {/* Formulaire de Génération de Recettes - Conditionnellement affiché ou défilé */}
       <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
