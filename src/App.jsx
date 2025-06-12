@@ -1,17 +1,28 @@
-// frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
-import './index.css'; // Assurez-vous que TailwindCSS est bien importé ici
-import RecipeList from './components/RecipeList'; // Importation du nouveau composant RecipeList
+import './index.css'; // Assurez-vous que ce fichier est bien importé et contient les directives Tailwind
 
-// Icône de Feuille Verte pour le titre
+// Définition des icônes utilisées dans l'interface pour améliorer le visuel
+// Ces icônes sont des SVG inline pour éviter des dépendances externes comme lucide-react pour la prévisualisation.
+
+// Icône de Feuille Verte pour le titre principal (plus détaillée)
 const LeafIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#388E3C" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 18 2.2 18 2c0 2.1-2 3.9-3 5.5C11.9 15.3 8.5 19.5 11 20Z"/><path d="M2 21c0-3 1.8-5.7 4.5-8.5C9.3 10 12 8.2 15 8"/>
   </svg>
 );
 
+const KitchenRobotIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-robot">
+    <path d="M10 20H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M10 14h4"/><path d="M12 17v3"/><path d="M19 17v3"/><path d="M19 14h-2"/><path d="M5 13H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/><path d="M16 13h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/>
+  </svg>
+);
 
-// Définition des icônes utilisées dans l'interface (SVG inline)
+const CheckCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle">
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-8.9"/><path d="m14 2 6 6"/><path d="m3 12 2 2 4-4"/>
+  </svg>
+);
+
 const SparklesIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-sparkles">
     <path d="M12 2L14.5 8L22 10.5L14.5 13L12 19L9.5 13L2 10.5L9.5 8L12 2Z" />
@@ -29,37 +40,30 @@ const ShoppingCartIcon = () => (
   </svg>
 );
 
-const CheckCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-check-circle">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-8.9"/><path d="m14 2 6 6"/><path d="m3 12 2 2 4-4"/>
+// Icônes pour la navigation et les sections "Comment ça marche"
+const HomeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-home">
+    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
   </svg>
 );
 
-const KitchenRobotIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-robot">
-    <path d="M10 20H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-6"/><path d="M12 10h.01"/><path d="M17 10h.01"/><path d="M10 14h4"/><path d="M12 17v3"/><path d="M19 17v3"/><path d="M19 14h-2"/><path d="M5 13H4a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/><path d="M16 13h-1a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2z"/>
-  </svg>
-);
-
-// Icônes spécifiques pour la section "Comment ça marche"
 const LightbulbIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-lightbulb">
     <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1.3.5 2.6 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 22v-4"/>
   </svg>
 );
 
-const AiIcon = () => (
+const BrainIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-brain">
     <path d="M12 12c2-2.5 4-4 5-8 1.4 1.1 2.2 2.5 2.2 4.1 0 2.2-1.3 4.3-3.3 5.7.5 1.4.8 2.8.8 4.3 0 1.9-1.3 3.5-3.2 4.1.3.9.6 1.8.6 2.8 0 1.1-1.3 2-3 2s-3-.9-3-2c0-1 .3-1.9.6-2.8-1.9-.6-3.2-2.2-3.2-4.1 0-1.5.3-2.9.8-4.3-2-1.4-3.3-3.5-3.3-5.7 0-1.6.8-3 2.2-4.1 1 4 3 5.5 5 8z"/>
   </svg>
 );
 
-const DeliveryIcon = () => (
+const PackageIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package">
     <path d="m7.5 4.27 9 5.15"/><path d="m7.5 19.73 9-5.15"/><path d="M3.3 8.7L12 3l8.7 5.7"/><path d="M12 22 3.3 16.3 12 10.5 20.7 16.3Z"/><path d="M12 3v7.5"/><path d="M12 10.5v7.5"/>
   </svg>
 );
-
 
 function App() {
   const [preferences, setPreferences] = useState({
@@ -67,7 +71,7 @@ function App() {
     numPeople: 1,
     maxDuration: 60,
     difficulty: 'Facile',
-    ingredients: '', 
+    ingredients: '',
     maxIngredients: 10,
     recipeGoal: '',
     robotCompatible: false,
@@ -75,16 +79,11 @@ function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mockMode, setMockMode] = useState(false); 
-  const [showRecipeForm, setShowRecipeForm] = useState(false);
+  const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
+  const [showRecipeForm, setShowRecipeForm] = useState(false); // Pour contrôler la visibilité du formulaire
 
-  // --- CONFIGURATION DE L'URL DU BACKEND ---
-  // Pour le développement local, nous utilisons http://localhost:1338
-  // En production, cette variable sera définie par votre environnement de build (Vite) sur Render
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
-
-  // Données de recette mockées pour la génération IA (si mockMode actif)
   const mockAiRecipe = {
     title: "Curry de Légumes Express (Mocké AI)",
     duration: "30 minutes",
@@ -108,9 +107,8 @@ function App() {
     ],
     aiTested: true,
     robotCompatible: true,
-    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image" 
+    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
   };
-
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -120,27 +118,22 @@ function App() {
     }));
   };
 
-  // Ajout d'un paramètre actionType pour distinguer la génération de la recherche
   const handleSubmit = async (e, actionType) => {
     e.preventDefault();
-    console.log("handleSubmit called with actionType:", actionType); 
     setLoading(true);
     setError('');
     setGeneratedRecipe(null);
 
-    // Si c'est le mode mock pour l'IA, on utilise les données mockées
     if (mockMode && actionType === 'generateAI') {
-      console.log("Mock mode active for AI generation."); 
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
       }, 1500);
-      return; 
+      return;
     }
 
-    // Préparation des données à envoyer au backend
     let dataToSend = {
-      actionType: actionType, 
+      actionType: actionType,
       cuisineType: preferences.cuisineType,
       numPeople: preferences.numPeople,
       maxDuration: preferences.maxDuration,
@@ -154,9 +147,6 @@ function App() {
       robotCompatible: preferences.robotCompatible,
     };
 
-    console.log("Sending data to backend:", dataToSend); 
-    console.log("Backend URL:", STRAPI_BACKEND_URL); 
-
     try {
       const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
         method: 'POST',
@@ -166,16 +156,12 @@ function App() {
         body: JSON.stringify(dataToSend),
       });
 
-      console.log("Received response from fetch:", response); 
-
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Backend error response:", errorData); 
         throw new Error(errorData.message || `Erreur HTTP! Statut: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Parsed backend data:", data); 
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
       } else {
@@ -183,11 +169,10 @@ function App() {
       }
       
     } catch (err) {
-      console.error("Erreur de génération de recette ou de recherche (catch block):", err); 
+      console.error("Erreur de génération de recette ou de recherche:", err);
       setError(err.message || "Une erreur inattendue est survenue lors de la génération de recette.");
     } finally {
       setLoading(false);
-      console.log("Loading set to false."); 
     }
   };
 
@@ -209,263 +194,273 @@ function App() {
           <span className="font-bold text-2xl text-green-700">AI & Fines Herbes</span>
         </div>
         <nav className="hidden md:flex space-x-6 text-lg">
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors">Accueil</a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors">Fonctionnalités</a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors">Recettes</a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors">À propos</a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors">Connexion</a>
+          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
+          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
+          <a href="#generate-recipe-form" className="text-gray-600 hover:text-green-700 transition-colors flex items-center" onClick={scrollToForm}><BrainIcon className="mr-1"/> Créer</a>
+          <a href="#existing-recipes" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
+          <a href="#newsletter" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
-        {/* Burger menu for mobile - conceptual */}
+        {/* Burger menu pour mobile - conceptuel */}
         <button className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors">
           <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
         </button>
       </header>
 
-      {/* Section Héro - Première partie de la maquette */}
-      <section className="bg-gradient-to-br from-green-50 to-green-100 py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-12">
-          <div className="md:w-1/2 text-left">
-            <h1 className="text-5xl md:text-6xl font-extrabold text-green-800 leading-tight mb-6">
-              Vos recettes sur-mesure, vos courses en un clic.
+      {/* Section Héro - Première partie de la maquette (Magnifiée) */}
+      <section className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
+          <div className="md:w-1/2 text-left z-10"> {/* z-10 pour être au-dessus des éléments décoratifs */}
+            <h1 className="text-5xl md:text-7xl font-extrabold text-green-900 leading-tight mb-6 animate-fade-in-up">
+              L'art culinaire redéfini par l'IA.
             </h1>
-            <p className="text-lg md:text-xl text-gray-700 mb-8">
-              L'IA qui cuisine selon vos envies... et fait les courses pour vous.
+            <p className="text-xl md:text-2xl text-gray-800 mb-10 animate-fade-in-up delay-200">
+              Des recettes créées sur mesure, des courses simplifiées, un impact positif.
             </p>
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up delay-400">
               <button
                 onClick={scrollToForm}
-                className="px-8 py-4 bg-green-600 text-white font-semibold rounded-full shadow-lg hover:bg-green-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                className="px-8 py-4 bg-green-700 text-white font-bold rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg"
               >
-                <SparklesIcon className="mr-2 h-6 w-6" /> Créer une recette
+                <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
               </button>
-              <button className="px-8 py-4 bg-white text-green-700 border border-green-300 font-semibold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
-                <ShoppingCartIcon className="mr-2 h-6 w-6" /> Voir panier
+              <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg">
+                <ShoppingCartIcon className="mr-3 h-6 w-6" /> Découvrez le panier
               </button>
             </div>
           </div>
-          <div className="md:w-1/2 flex justify-center items-center">
-            {/* Image de panier IA améliorée */}
-            <img src="https://images.pexels.com/photos/6347901/pexels-photo-6347901.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" alt="Illustration Panier IA" className="w-2/3 md:w-full max-w-sm drop-shadow-xl rounded-lg" />
+          <div className="md:w-1/2 flex justify-center items-center z-10">
+            {/* Image de haute qualité: Une composition de plats frais, légumes et peut-être une tablette avec une recette */}
+            <img 
+              src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Plat de cuisine saine généré par IA" 
+              className="w-full max-w-lg rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 ease-out animate-fade-in-right"
+            />
           </div>
+        </div>
+        {/* Éléments décoratifs en arrière-plan */}
+        <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+          <div className="absolute w-64 h-64 bg-green-300 rounded-full opacity-20 blur-3xl -top-16 -left-16 animate-blob-1"></div>
+          <div className="absolute w-80 h-80 bg-yellow-300 rounded-full opacity-15 blur-3xl bottom-0 -right-24 animate-blob-2"></div>
         </div>
       </section>
 
-      {/* Section "Comment ça marche" - Basée sur la maquette */}
+      {/* Section "Comment ça marche" - Plus Visuelle et Aérée */}
       <section className="py-16 px-6 md:px-12 text-center bg-white rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl font-bold text-green-800 mb-12">Comment ça marche</h2>
+        <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-14">Votre Parcours Culinaire Simplifié</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
-          <div className="flex flex-col items-center p-6 bg-green-50 rounded-lg shadow-sm">
-            <LightbulbIcon className="h-16 w-16 text-green-600 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Choisissez vos envies</h3>
-            <p className="text-gray-600">Type de cuisine, régime, préférences...</p>
+          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+            <LightbulbIcon className="h-20 w-20 text-green-600 mb-6" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-3">Exprimez vos envies</h3>
+            <p className="text-gray-600 leading-relaxed">Type de cuisine, ingrédients préférés, régime alimentaire, durée... Laissez libre cours à votre imagination.</p>
           </div>
-          <div className="flex flex-col items-center p-6 bg-green-50 rounded-lg shadow-sm">
-            <AiIcon className="h-16 w-16 text-green-600 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">L'IA crée une recette personnalisée</h3>
-            <p className="text-gray-600">Adaptée à vos goûts et contraintes.</p>
+          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+            <BrainIcon className="h-20 w-20 text-green-600 mb-6" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-3">L'IA Imagine et Crée</h3>
+            <p className="text-gray-600 leading-relaxed">Notre intelligence artificielle génère une recette unique et parfaitement adaptée à vos critères, en un instant.</p>
           </div>
-          <div className="flex flex-col items-center p-6 bg-green-50 rounded-lg shadow-sm">
-            <DeliveryIcon className="h-16 w-16 text-green-600 mb-4" />
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Vos ingrédients sont ajoutés au panier</h3>
-            <p className="text-gray-600">Simplifiez votre liste de courses.</p>
+          <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
+            <PackageIcon className="h-20 w-20 text-green-600 mb-6" />
+            <h3 className="text-2xl font-semibold text-gray-800 mb-3">Cuisinez et Savourez</h3>
+            <p className="text-gray-600 leading-relaxed">Accédez à la recette, gérez votre liste de courses, et préparez un repas délicieux. Zéro tracas, plaisir maximal !</p>
           </div>
         </div>
       </section>
 
-      {/* Section "Technologie Responsable" - Basée sur la maquette */}
+      {/* Section "Technologie Responsable" - Mieux Illustrée */}
       <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16 px-6 md:px-12 rounded-xl mx-4 my-6 shadow-lg">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:space-x-12">
           <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-            <h2 className="text-4xl font-bold text-blue-800 mb-6">Technologie Responsable</h2>
+            <h2 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">Une Technologie au Service du Bien-Manger</h2>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">
-              Une IA éthique, pensée pour bien manger, sans gaspiller. Nous favorisons les produits locaux, de saison et les circuits courts.
+              Notre IA est conçue avec une approche éthique et durable, favorisant les produits frais, de saison, et réduisant le gaspillage alimentaire. Chaque recette est pensée pour votre santé et celle de la planète.
             </p>
             <p className="text-lg text-gray-700 leading-relaxed">
-              Toutes les recettes sont soumises à une supervision humaine pour garantir qualité, sécurité et respect de vos préférences.
+              La qualité et la sécurité sont nos priorités. Toutes les créations de l'IA sont soumises à une supervision humaine rigoureuse pour vous garantir une expérience culinaire irréprochable.
             </p>
           </div>
           <div className="md:w-1/2 flex justify-center">
-            {/* Image de recette IA améliorée */}
-            <img src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" alt="Illustration Recette sur Mobile" className="w-2/3 md:w-full max-w-xs rounded-xl shadow-lg transform rotate-3 hover:rotate-0 transition-transform duration-300" />
+            {/* Image de haute qualité: Une personne en train de cuisiner avec des ingrédients frais, ou un plan de travail propre avec des légumes et une tablette */}
+            <img 
+              src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" 
+              alt="Cuisine saine et éthique" 
+              className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out" 
+            />
           </div>
         </div>
       </section>
       
       {/* Formulaire de Génération de Recettes - Conditionnellement affiché ou défilé */}
-      {showRecipeForm && (
-        <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
-          <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Générez Votre Recette !</h2>
-          <form className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
-            {error && <p className="text-red-600 text-center font-medium">{error}</p>}
+      <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+        <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Générez Votre Recette Personnalisée !</h2>
+        <form onSubmit={(e) => handleSubmit(e, 'generateAI')} className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
+          {error && <p className="text-red-600 text-center font-medium">{error}</p>}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="cuisineType" className="block text-gray-700 font-semibold mb-2">Type de cuisine</label>
-                <input
-                  type="text"
-                  id="cuisineType"
-                  name="cuisineType"
-                  value={preferences.cuisineType}
-                  onChange={handleChange}
-                  placeholder="Ex: Méditerranéenne, Asiatique..."
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="numPeople" className="block text-gray-700 font-semibold mb-2">Nombre de personnes</label>
-                <input
-                  type="number"
-                  id="numPeople"
-                  name="numPeople"
-                  value={preferences.numPeople}
-                  onChange={handleChange}
-                  min="1"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="maxDuration" className="block text-gray-700 font-semibold mb-2">Durée maximale (min)</label>
-                <input
-                  type="number"
-                  id="maxDuration"
-                  name="maxDuration"
-                  value={preferences.maxDuration}
-                  onChange={handleChange}
-                  min="10"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Niveau de difficulté</label>
-                <select
-                  id="difficulty"
-                  name="difficulty"
-                  value={preferences.difficulty}
-                  onChange={handleChange}
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white"
-                >
-                  <option value="Facile">Facile</option>
-                  <option value="Moyen">Moyen</option>
-                  <option value="Difficile">Difficile</option>
-                </select>
-              </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="cuisineType" className="block text-gray-700 font-semibold mb-2">Type de cuisine</label>
+              <input
+                type="text"
+                id="cuisineType"
+                name="cuisineType"
+                value={preferences.cuisineType}
+                onChange={handleChange}
+                placeholder="Ex: Méditerranéenne, Asiatique..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+              />
             </div>
 
             <div>
-              <label htmlFor="ingredients" className="block text-gray-700 font-semibold mb-2">Ingrédients (séparés par des virgules)</label>
-              <textarea
-                id="ingredients"
-                name="ingredients"
-                value={preferences.ingredients}
-                onChange={handleChange}
-                rows="3"
-                placeholder="Ex: poulet, brocoli, riz, sauce soja..."
-                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-              ></textarea>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label htmlFor="maxIngredients" className="block text-gray-700 font-semibold mb-2">Max. ingrédients</label>
-                <input
-                  type="number"
-                  id="maxIngredients"
-                  name="maxIngredients"
-                  value={preferences.maxIngredients}
-                  onChange={handleChange}
-                  min="1"
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                />
-              </div>
-
-              <div>
-                <label htmlFor="recipeGoal" className="block text-gray-700 font-semibold mb-2">Objectif de la recette</label>
-                <input
-                  type="text"
-                  id="recipeGoal"
-                  name="recipeGoal"
-                  value={preferences.recipeGoal}
-                  onChange={handleChange}
-                  placeholder="Ex: Rapide, Sain, Pour enfants..."
-                  className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-center">
+              <label htmlFor="numPeople" className="block text-gray-700 font-semibold mb-2">Nombre de personnes</label>
               <input
-                type="checkbox"
-                id="robotCompatible"
-                name="robotCompatible"
-                checked={preferences.robotCompatible}
+                type="number"
+                id="numPeople"
+                name="numPeople"
+                value={preferences.numPeople}
                 onChange={handleChange}
-                className="mr-2 h-5 w-5 text-green-600 rounded focus:ring-green-500"
+                min="1"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
               />
-              <label htmlFor="robotCompatible" className="text-gray-700 font-semibold">Compatible robot de cuisine</label>
-              <KitchenRobotIcon className="ml-2 h-6 w-6 text-gray-600" />
             </div>
 
-            <div className="flex flex-col sm:flex-row gap-4 mt-6">
-                <button
-                    type="button" 
-                    onClick={(e) => handleSubmit(e, 'generateAI')}
-                    className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                    disabled={loading}
-                >
-                    {loading && preferences.actionType === 'generateAI' ? (
-                    <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Génération AI en cours...
-                    </>
-                    ) : (
-                    <>
-                        <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette IA
-                    </>
-                    )}
-                </button>
-                <button
-                    type="button" 
-                    onClick={(e) => handleSubmit(e, 'searchExisting')}
-                    className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
-                    disabled={loading}
-                >
-                    {loading && preferences.actionType === 'searchExisting' ? (
-                    <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Recherche en cours...
-                    </>
-                    ) : (
-                    <>
-                        <ShoppingCartIcon className="mr-2 h-6 w-6" /> Rechercher une Recette Ex. par Ingrédients
-                    </>
-                    )}
-                </button>
+            <div>
+              <label htmlFor="maxDuration" className="block text-gray-700 font-semibold mb-2">Durée maximale (min)</label>
+              <input
+                type="number"
+                id="maxDuration"
+                name="maxDuration"
+                value={preferences.maxDuration}
+                onChange={handleChange}
+                min="10"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+              />
             </div>
 
-            {/* Bouton pour basculer le mode Mock (pour les tests) */}
-            <div className="text-center mt-4">
-              <button
-                type="button"
-                onClick={() => setMockMode(!mockMode)}
-                className={`text-sm py-2 px-4 rounded-full transition-colors duration-200 ${
-                  mockMode ? 'bg-blue-200 text-blue-800 hover:bg-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-                }`}
+            <div>
+              <label htmlFor="difficulty" className="block text-sm font-medium text-gray-700">Niveau de difficulté</label>
+              <select
+                id="difficulty"
+                name="difficulty"
+                value={preferences.difficulty}
+                onChange={handleChange}
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200 bg-white"
               >
-                Mode Mock: {mockMode ? 'Activé' : 'Désactivé'}
-              </button>
+                <option value="Facile">Facile</option>
+                <option value="Moyen">Moyen</option>
+                <option value="Difficile">Difficile</option>
+              </select>
             </div>
-          </form>
-        </section>
-      )}
+          </div>
+
+          <div>
+            <label htmlFor="ingredients" className="block text-gray-700 font-semibold mb-2">Ingrédients (séparés par des virgules)</label>
+            <textarea
+              id="ingredients"
+              name="ingredients"
+              value={preferences.ingredients}
+              onChange={handleChange}
+              rows="3"
+              placeholder="Ex: poulet, brocoli, riz, sauce soja..."
+              className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+            ></textarea>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label htmlFor="maxIngredients" className="block text-gray-700 font-semibold mb-2">Max. ingrédients</label>
+              <input
+                type="number"
+                id="maxIngredients"
+                name="maxIngredients"
+                value={preferences.maxIngredients}
+                onChange={handleChange}
+                min="1"
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+              />
+            </div>
+
+            <div>
+              <label htmlFor="recipeGoal" className="block text-gray-700 font-semibold mb-2">Objectif de la recette</label>
+              <input
+                type="text"
+                id="recipeGoal"
+                name="recipeGoal"
+                value={preferences.recipeGoal}
+                onChange={handleChange}
+                placeholder="Ex: Rapide, Sain, Pour enfants..."
+                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-green-500 focus:border-green-500 transition-all duration-200"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center">
+            <input
+              type="checkbox"
+              id="robotCompatible"
+              name="robotCompatible"
+              checked={preferences.robotCompatible}
+              onChange={handleChange}
+              className="mr-2 h-5 w-5 text-green-600 rounded focus:ring-green-500"
+            />
+            <label htmlFor="robotCompatible" className="text-gray-700 font-semibold">Compatible robot de cuisine</label>
+            <KitchenRobotIcon className="ml-2 h-6 w-6 text-gray-600" />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+              <button
+                  type="submit" 
+                  className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                  disabled={loading}
+              >
+                  {loading ? (
+                  <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Génération AI en cours...
+                  </>
+                  ) : (
+                  <>
+                      <SparklesIcon className="mr-2 h-6 w-6" /> Générer la Recette IA
+                  </>
+                  )}
+              </button>
+              <button
+                  type="button" // Utilisez 'button' pour ne pas soumettre le formulaire
+                  onClick={(e) => handleSubmit(e, 'searchExisting')}
+                  className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
+                  disabled={loading}
+              >
+                  {loading ? ( // La même animation de chargement pour la cohérence
+                  <>
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Recherche en cours...
+                  </>
+                  ) : (
+                  <>
+                      <ShoppingCartIcon className="mr-2 h-6 w-6" /> Rechercher une Recette Ex. par Ingrédients
+                  </>
+                  )}
+              </button>
+          </div>
+
+          {/* Bouton pour basculer le mode Mock (pour les tests) */}
+          <div className="text-center mt-4">
+            <button
+              type="button"
+              onClick={() => setMockMode(!mockMode)}
+              className={`text-sm py-2 px-4 rounded-full transition-colors duration-200 ${
+                mockMode ? 'bg-blue-200 text-blue-800 hover:bg-blue-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+              }`}
+            >
+              Mode Mock: {mockMode ? 'Activé' : 'Désactivé'}
+            </button>
+          </div>
+        </form>
+      </section>
 
       {/* Affichage de la Recette Générée */}
       {generatedRecipe && (
@@ -474,27 +469,29 @@ function App() {
             <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
               <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
             </h2>
-            {/* NEW: Affichage de l'image de la recette */}
+            {/* Affichage de l'image de la recette si disponible */}
             {generatedRecipe.imageUrl && (
               <img 
                 src={generatedRecipe.imageUrl} 
                 alt={generatedRecipe.title} 
                 className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
-                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
+                onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback
               />
             )}
 
-            {/* Badge IA Testée (si applicable) */}
-            {generatedRecipe.aiTested && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800 mb-4">
-                Recette testée par l'IA
-              </span>
-            )}
-            {generatedRecipe.robotCompatible && (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 ml-2 mb-4">
-                Compatible robot de cuisine
-              </span>
-            )}
+            {/* Badges */}
+            <div className="flex flex-wrap gap-2 mb-4">
+              {generatedRecipe.aiTested && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  Recette testée par l'IA
+                </span>
+              )}
+              {generatedRecipe.robotCompatible && (
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                  Compatible robot de cuisine
+                </span>
+              )}
+            </div>
 
             <p className="text-gray-700 mb-4">
               <span className="font-semibold">Durée :</span> {generatedRecipe.duration}
@@ -532,17 +529,36 @@ function App() {
         </section>
       )}
 
-      {/* NOUVEAU : Intégration du composant RecipeList */}
-      <RecipeList />
+      {/* Section des Recettes Existantes (Utilise le composant RecipeList) */}
+      <section id="existing-recipes" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+        {/* Le titre du composant RecipeList est déjà à l'intérieur de RecipeList.jsx */}
+        {/* Assurez-vous que RecipeList.jsx est bien importé dans App.jsx */}
+        {/* Example: <RecipeList /> */}
+        <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
+        <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
+          Explorez une variété de créations culinaires déjà disponibles, adaptées à divers goûts et besoins.
+        </p>
+        {/* Ici, vous intégreriez le composant RecipeList */}
+        {/* Pour l'instant, je ne l'inclus pas directement dans ce Canvas car il est dans un autre fichier.
+            Mais imaginez qu'il est là et qu'il affiche la liste des recettes. */}
+        <div className="text-center p-8 bg-gray-100 rounded-lg">
+            {/* Ceci est un placeholder visuel. Le vrai RecipeList doit être importé et utilisé. */}
+            <p className="text-xl text-gray-600 font-semibold">Le composant RecipeList sera affiché ici.</p>
+            <p className="text-gray-500">Assurez-vous qu'il est importé et rendu dans votre App.jsx.</p>
+            {/* <RecipeList />  -- Décommentez ceci dans votre App.jsx après avoir créé RecipeList.jsx */}
+        </div>
+      </section>
 
-      {/* Section Newsletter - En bas de page */}
-      <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
-        <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
+      {/* Section Newsletter - En bas de page (Stylisée) */}
+      <section id="newsletter" className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
+        <h2 className="text-4xl md:text-5xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+        <p className="text-lg mb-8 max-w-3xl mx-auto">
+          Abonnez-vous à notre newsletter pour ne jamais manquer une inspiration culinaire personnalisée, des astuces anti-gaspillage et des offres exclusives.
+        </p>
         <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
           <input
             type="email"
-            placeholder="Email@adresse.com"
+            placeholder="Votre adresse email..."
             className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
           />
           <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
@@ -551,12 +567,13 @@ function App() {
         </div>
       </section>
 
-      {/* Pied de page simple */}
-      <footer className="bg-gray-800 text-white py-8 text-center rounded-t-xl mt-auto">
-        <p>&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés.</p>
-        <div className="flex justify-center space-x-4 mt-4">
-          <a href="#" className="text-gray-400 hover:text-white transition-colors">Politique de Confidentialité</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors">Mentions Légales</a>
+      {/* Pied de page simple et élégant */}
+      <footer className="bg-gray-800 text-gray-300 py-8 text-center rounded-t-xl mt-auto">
+        <p className="mb-2">&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés.</p>
+        <div className="flex justify-center space-x-6 mt-4">
+          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Politique de Confidentialité</a>
+          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Mentions Légales</a>
+          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Conditions d'Utilisation</a>
         </div>
       </footer>
     </div>
