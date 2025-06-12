@@ -1,6 +1,7 @@
 // frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
 import './index.css'; // Assurez-vous que TailwindCSS est bien importé ici
+import RecipeList from './components/RecipeList'; // Importation du nouveau composant RecipeList
 
 // Icône de Feuille Verte pour le titre
 const LeafIcon = () => (
@@ -79,9 +80,8 @@ function App() {
 
   // --- CONFIGURATION DE L'URL DU BACKEND ---
   // Pour le développement local, nous utilisons http://localhost:1338
-  const STRAPI_BACKEND_URL = "http://localhost:1338"; 
-  // Pour le déploiement en production, vous utiliseriez:
-  // const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
+  // En production, cette variable sera définie par votre environnement de build (Vite) sur Render
+  const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
 
   // Données de recette mockées pour la génération IA (si mockMode actif)
@@ -108,7 +108,6 @@ function App() {
     ],
     aiTested: true,
     robotCompatible: true,
-    // NOUVEAU: URL d'image de substitution pour le mode mock
     imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image" 
   };
 
@@ -124,25 +123,24 @@ function App() {
   // Ajout d'un paramètre actionType pour distinguer la génération de la recherche
   const handleSubmit = async (e, actionType) => {
     e.preventDefault();
-    console.log("handleSubmit called with actionType:", actionType); // Débogage
+    console.log("handleSubmit called with actionType:", actionType); 
     setLoading(true);
     setError('');
     setGeneratedRecipe(null);
 
     // Si c'est le mode mock pour l'IA, on utilise les données mockées
-    // Cette condition ne sera plus remplie si mockMode est false
     if (mockMode && actionType === 'generateAI') {
-      console.log("Mock mode active for AI generation."); // Débogage
+      console.log("Mock mode active for AI generation."); 
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
       }, 1500);
-      return; // Retourne ici, donc pas d'appel fetch
+      return; 
     }
 
     // Préparation des données à envoyer au backend
     let dataToSend = {
-      actionType: actionType, // 'generateAI' ou 'searchExisting'
+      actionType: actionType, 
       cuisineType: preferences.cuisineType,
       numPeople: preferences.numPeople,
       maxDuration: preferences.maxDuration,
@@ -156,8 +154,8 @@ function App() {
       robotCompatible: preferences.robotCompatible,
     };
 
-    console.log("Sending data to backend:", dataToSend); // Débogage
-    console.log("Backend URL:", STRAPI_BACKEND_URL); // Débogage
+    console.log("Sending data to backend:", dataToSend); 
+    console.log("Backend URL:", STRAPI_BACKEND_URL); 
 
     try {
       const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
@@ -168,16 +166,16 @@ function App() {
         body: JSON.stringify(dataToSend),
       });
 
-      console.log("Received response from fetch:", response); // Débogage
+      console.log("Received response from fetch:", response); 
 
       if (!response.ok) {
         const errorData = await response.json();
-        console.error("Backend error response:", errorData); // Débogage
+        console.error("Backend error response:", errorData); 
         throw new Error(errorData.message || `Erreur HTTP! Statut: ${response.status}`);
       }
 
       const data = await response.json();
-      console.log("Parsed backend data:", data); // Débogage
+      console.log("Parsed backend data:", data); 
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
       } else {
@@ -185,11 +183,11 @@ function App() {
       }
       
     } catch (err) {
-      console.error("Erreur de génération de recette ou de recherche (catch block):", err); // Débogage
+      console.error("Erreur de génération de recette ou de recherche (catch block):", err); 
       setError(err.message || "Une erreur inattendue est survenue lors de la génération de recette.");
     } finally {
       setLoading(false);
-      console.log("Loading set to false."); // Débogage
+      console.log("Loading set to false."); 
     }
   };
 
@@ -412,7 +410,7 @@ function App() {
 
             <div className="flex flex-col sm:flex-row gap-4 mt-6">
                 <button
-                    type="button" // Important: utilisez 'button' pour éviter la soumission par défaut
+                    type="button" 
                     onClick={(e) => handleSubmit(e, 'generateAI')}
                     className="flex-1 py-4 bg-green-700 text-white font-bold text-lg rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                     disabled={loading}
@@ -432,7 +430,7 @@ function App() {
                     )}
                 </button>
                 <button
-                    type="button" // Important: utilisez 'button' pour éviter la soumission par défaut
+                    type="button" 
                     onClick={(e) => handleSubmit(e, 'searchExisting')}
                     className="flex-1 py-4 bg-blue-600 text-white font-bold text-lg rounded-full shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 flex items-center justify-center"
                     disabled={loading}
@@ -533,6 +531,9 @@ function App() {
           </div>
         </section>
       )}
+
+      {/* NOUVEAU : Intégration du composant RecipeList */}
+      <RecipeList />
 
       {/* Section Newsletter - En bas de page */}
       <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
