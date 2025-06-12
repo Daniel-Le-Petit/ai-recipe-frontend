@@ -219,7 +219,7 @@ function App() {
 
       {/* Menu déroulant pour mobile (conditionnellement affiché) */}
       {isMobileMenuOpen && (
-        <nav className="md:hidden absolute top-full right-4 bg-white border border-gray-200 rounded-lg shadow-xl py-4 z-10 w-64">
+        <nav className="md:hidden absolute top-full right-4 bg-white border border-gray-200 rounded-lg shadow-xl py-4 z-50 w-64"> {/* Z-index augmenté à z-50 */}
           <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
           <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
           <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-6 py-3 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
