@@ -86,7 +86,8 @@ function App() {
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
-  const [currentPage, setCurrentPage] = useState('home'); // État pour la page actuelle: 'home' ou 'createRecipe'
+  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay'
+  const [currentPage, setCurrentPage] = useState('home');
 
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
@@ -129,12 +130,13 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    setGeneratedRecipe(null);
+    // setGeneratedRecipe(null); // Keep generated recipe for display on the next "page"
 
     if (mockMode && actionType === 'generateAI') {
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
+        setCurrentPage('generatedRecipeDisplay'); // Transition to the recipe display page
       }, 1500);
       return;
     }
@@ -171,8 +173,9 @@ function App() {
       const data = await response.json();
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
+        setCurrentPage('generatedRecipeDisplay'); // Transition to the recipe display page
       } else {
-        setGeneratedRecipe(data);
+        setGeneratedRecipe(data); // In case 'recipe' field is not directly present
       }
       
     } catch (err) {
@@ -194,12 +197,13 @@ function App() {
           section.scrollIntoView({ behavior: 'smooth' });
         }
       }, 500); // Délai pour laisser la transition de page se terminer
-    } else if (pageId === 'createRecipe') {
-        // Optionnel: Faire défiler la page de création en haut si elle est longue
+    } else if (pageId === 'createRecipeForm' || pageId === 'generatedRecipeDisplay') { // Ensure scrolling for new pages too
         setTimeout(() => {
-            const formSection = document.getElementById('generate-recipe-form');
-            if (formSection) {
-                formSection.scrollIntoView({ behavior: 'smooth' });
+            const targetSection = document.getElementById(
+                pageId === 'createRecipeForm' ? 'generate-recipe-form' : 'generated-recipe-display'
+            );
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
             }
         }, 500);
     }
@@ -223,7 +227,7 @@ function App() {
         <nav className="hidden md:flex space-x-6 text-lg">
           <a href="#" onClick={() => handleNavigate('home')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
           <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
-          <a href="#" onClick={() => handleNavigate('createRecipe')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</a>
+          <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</a>
           <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
           <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
@@ -236,7 +240,7 @@ function App() {
             <nav className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
               <a href="#" onClick={() => handleNavigate('home')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
               <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
-              <a href="#" onClick={() => handleNavigate('createRecipe')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
+              <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
               <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
               <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
             </nav>
@@ -245,11 +249,8 @@ function App() {
       </header>
 
       {/* Main content area, will contain the sliding pages */}
-      <main className="flex-1 w-full overflow-hidden relative h-full"> {/* Added h-full here */}
-        {/*
-          Home Page Content - Positioned absolutely.
-          It slides left when 'createRecipe' is active.
-        */}
+      <main className="flex-1 w-full overflow-hidden relative h-full">
+        {/* Home Page Content */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
                        ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}>
           <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
@@ -263,7 +264,7 @@ function App() {
                 </p>
                 <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up delay-400">
                   <button
-                    onClick={() => handleNavigate('createRecipe')}
+                    onClick={() => handleNavigate('createRecipeForm')}
                     className="px-8 py-4 bg-green-700 text-white font-bold rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg"
                   >
                     <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
@@ -391,65 +392,6 @@ function App() {
             </div>
           </section>
 
-          {/* Affichage de la Recette Générée sur la page d'accueil (peut-être après la section explore) */}
-          {generatedRecipe && (
-            <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
-              <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
-                <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
-                  <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
-                </h2>
-                {generatedRecipe.imageUrl && (
-                  <img
-                    src={generatedRecipe.imageUrl}
-                    alt={generatedRecipe.title}
-                    className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
-                    onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
-                  />
-                )}
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {generatedRecipe.aiTested && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-                      Recette testée par l'IA
-                    </span>
-                  )}
-                  {generatedRecipe.robotCompatible && (
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      Compatible robot de cuisine
-                    </span>
-                  )}
-                </div>
-                <p className="text-gray-700 mb-4">
-                  <span className="font-semibold">Durée :</span> {generatedRecipe.duration}
-                </p>
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
-                  {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
-                    <li key={index}>
-                      <span className="font-semibold">{item.name}</span>: {item.quantity}
-                    </li>
-                  ))}
-                </ul>
-                <h3 className="text-2xl font-bold text-gray-800 mb-3">Étapes :</h3>
-                <ol className="list-decimal list-inside text-gray-700 space-y-2">
-                  {generatedRecipe.steps && generatedRecipe.steps.map((step, index) => (
-                    <li key={index}>{step}</li>
-                  ))}
-                </ol>
-                <div className="flex flex-wrap justify-center gap-4 mt-8">
-                  <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
-                    Ajouter au panier
-                  </button>
-                  <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
-                    Exporter pour Robot
-                  </button>
-                  <button className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-300 transition-colors duration-200">
-                    Noter la recette
-                  </button>
-                </div>
-              </div>
-            </section>
-          )}
-
           <section id="existing-recipes" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
             <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
             <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
@@ -479,12 +421,9 @@ function App() {
           </section>
         </div>
 
-        {/*
-          Create Recipe Page Content - Positioned absolutely.
-          It slides from right to center when active.
-        */}
+        {/* Create Recipe Form Page Content */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
-                       ${currentPage === 'createRecipe' ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}>
+                       ${currentPage === 'createRecipeForm' ? 'translate-x-0' : (currentPage === 'home' ? 'translate-x-full' : '-translate-x-full')} overflow-y-auto`}>
           <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
             <div className="flex items-center mb-6">
               <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
@@ -661,16 +600,94 @@ function App() {
             </form>
           </section>
         </div>
+
+        {/* Generated Recipe Display Page Content */}
+        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
+                       ${currentPage === 'generatedRecipeDisplay' ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}>
+          {generatedRecipe && (
+            <section id="generated-recipe-display" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    {/* Back button to go to createRecipeForm */}
+                    <button onClick={() => handleNavigate('createRecipeForm')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
+                        <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
+                    </h2>
+                </div>
+                <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
+                    {generatedRecipe.imageUrl && (
+                        <img
+                            src={generatedRecipe.imageUrl}
+                            alt={generatedRecipe.title}
+                            className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
+                            onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
+                        />
+                    )}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {generatedRecipe.aiTested && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                                Recette testée par l'IA
+                            </span>
+                        )}
+                        {generatedRecipe.robotCompatible && (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                                Compatible robot de cuisine
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-gray-700 mb-4">
+                        <span className="font-semibold">Durée :</span> {generatedRecipe.duration}
+                    </p>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
+                    <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
+                        {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
+                            <li key={index}>
+                                <span className="font-semibold">{item.name}</span>: {item.quantity}
+                            </li>
+                        ))}
+                    </ul>
+                    <h3 className="text-2xl font-bold text-gray-800 mb-3">Étapes :</h3>
+                    <ol className="list-decimal list-inside text-gray-700 space-y-2">
+                        {generatedRecipe.steps && generatedRecipe.steps.map((step, index) => (
+                            <li key={index}>{step}</li>
+                        ))}
+                    </ol>
+                    <div className="flex flex-wrap justify-center gap-4 mt-8">
+                        <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
+                            Ajouter au panier
+                        </button>
+                        <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full shadow-md hover:bg-purple-700 transition-colors duration-200">
+                            Exporter pour Robot
+                        </button>
+                        <button className="px-6 py-3 bg-gray-200 text-gray-800 font-semibold rounded-full shadow-md hover:bg-gray-300 transition-colors duration-200">
+                            Noter la recette
+                        </button>
+                    </div>
+                </div>
+            </section>
+          )}
+        </div>
       </main>
 
-      {/* Pied de page simple et élégant */}
-      <footer className="bg-gray-800 text-gray-300 py-8 text-center rounded-t-xl mt-auto">
-        <p className="mb-2">&copy; {new Date().getFullYear()} AI & Fines Herbes. Tous droits réservés.</p>
-        <div className="flex justify-center space-x-6 mt-4">
-          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Politique de Confidentialité</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Mentions Légales</a>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors text-sm">Conditions d'Utilisation</a>
-        </div>
+      {/* Pied de page simple et élégant, TOUJOURS visible */}
+      <footer className="bg-gray-800 text-gray-300 py-4 text-center fixed bottom-0 left-0 right-0 z-50 rounded-t-xl shadow-lg">
+        <nav className="flex justify-center space-x-8 text-lg">
+          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
+            <PackageIcon className="h-6 w-6"/>
+            <span>Recettes</span>
+          </a>
+          <a href="#" onClick={() => handleNavigate('home', 'shopping-cart-section')} className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
+            <ShoppingCartIcon className="h-6 w-6"/>
+            <span>Panier</span>
+          </a>
+          <a href="#" className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Profil</span>
+          </a>
+        </nav>
       </footer>
     </div>
   );
