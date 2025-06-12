@@ -211,22 +211,22 @@ function App() {
           <a href="#existing-recipes" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
           <a href="#newsletter" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
-        {/* Burger menu pour mobile */}
-        <button onClick={toggleMobileMenu} className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors z-30">
-          <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-        </button>
+        {/* Burger menu pour mobile (englobe le bouton et le menu déroulant) */}
+        <div className="relative md:hidden"> {/* Nouveau conteneur relatif pour le positionnement */}
+          <button onClick={toggleMobileMenu} className="p-2 rounded-md hover:bg-gray-100 transition-colors z-30">
+            <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+          </button>
+          {isMobileMenuOpen && (
+            <nav className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
+              <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
+              <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
+              <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
+              <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
+              <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
+            </nav>
+          )}
+        </div>
       </header>
-
-      {/* Menu déroulant pour mobile (conditionnellement affiché) */}
-      {isMobileMenuOpen && (
-        <nav className="md:hidden absolute top-full right-4 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
-          <a href="#" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
-          <a href="#generate-recipe-form" onClick={() => { scrollToForm(); setIsMobileMenuOpen(false); }} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
-          <a href="#existing-recipes" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
-          <a href="#newsletter" onClick={() => setIsMobileMenuOpen(false)} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
-        </nav>
-      )}
 
       {/* Section Héro - Première partie de la maquette (Magnifiée) */}
       <section className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
