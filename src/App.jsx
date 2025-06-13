@@ -492,7 +492,7 @@ function App() {
               {showLeftArrow && (
                 <button
                   onClick={() => scrollCarousel('left')}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 hidden md:block" // Hide on small screens
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block" // Removed hidden md:block
                 >
                   <ChevronLeftIcon />
                 </button>
@@ -500,7 +500,7 @@ function App() {
               {showRightArrow && (
                 <button
                   onClick={() => scrollCarousel('right')}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 hidden md:block" // Hide on small screens
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block" // Removed hidden md:block
                 >
                   <ChevronRightIcon />
                 </button>
