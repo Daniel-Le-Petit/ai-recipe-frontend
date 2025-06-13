@@ -89,6 +89,31 @@ const ChevronRightIcon = () => (
   </svg>
 );
 
+// Icônes spécifiques pour la page "Mon Profil"
+const BellIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bell">
+    <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>
+  </svg>
+);
+
+const HelpCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-help-circle">
+    <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/>
+  </svg>
+);
+
+const SettingsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-settings">
+    <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 0-2 0l-.15-.08a2 2 0 0 0-2.73 2.73l.08.15a2 2 0 0 0 0 2l-.25.43a2 2 0 0 1-1.73 1H2a2 2 0 0 0-2 2v.44a2 2 0 0 0 2 2h.18a2 2 0 0 1 1.73 1l.25.43a2 2 0 0 0 0 2l-.08.15a2 2 0 0 0 2.73 2.73l.15-.08a2 2 0 0 0 2 0l.43.25a2 2 0 0 1 1 1.73V22a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 0 2 0l.15.08a2 2 0 0 0 2.73-2.73l-.08-.15a2 2 0 0 0 0-2l.25-.43a2 2 0 0 1 1.73-1H22a2 2 0 0 0 2-2v-.44a2 2 0 0 0-2-2h-.18a2 2 0 0 1-1.73-1l-.25-.43a2 2 0 0 0 0-2l.08-.15a2 2 0 0 0-2.73-2.73l-.15.08a2 2 0 0 0-2 0l-.43-.25a2 2 0 0 1-1-1.73V2a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+
+const BookOpenIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-book-open">
+    <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h6z"/>
+  </svg>
+);
+
 
 function App() {
   const [preferences, setPreferences] = useState({
@@ -107,7 +132,7 @@ function App() {
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
   
-  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview'
+  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview', 'profilePage'
   const [currentPage, setCurrentPage] = useState('home');
 
   // For swipe gesture detection
@@ -116,7 +141,7 @@ function App() {
   const minSwipeDistance = 50; // Minimum horizontal distance for a swipe
 
   // Define the order of pages for linear swipe navigation (excluding generatedRecipeDisplay)
-  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview'];
+  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview', 'profilePage'];
 
   // Refs for carousel navigation
   const recipeCarouselRef = useRef(null);
@@ -229,6 +254,8 @@ function App() {
       else if (pageId === 'createRecipeForm') targetSectionId = 'generate-recipe-form';
       else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
       else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
+      else if (pageId === 'profilePage') targetSectionId = 'profile-page-section';
+
 
       if (sectionId && pageId === 'home') { // Override for specific section on home
           const section = document.getElementById(sectionId);
@@ -262,7 +289,7 @@ function App() {
       }
     }
 
-    // For the main sequential pages (home, createRecipeForm, recipesOverview)
+    // For the main sequential pages (home, createRecipeForm, recipesOverview, profilePage)
     const thisPageIndex = pageOrder.indexOf(pageId);
     const activePageIndex = pageOrder.indexOf(currentPage);
 
@@ -492,7 +519,7 @@ function App() {
               {showLeftArrow && (
                 <button
                   onClick={() => scrollCarousel('left')}
-                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block" // Removed hidden md:block
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block"
                 >
                   <ChevronLeftIcon />
                 </button>
@@ -500,7 +527,7 @@ function App() {
               {showRightArrow && (
                 <button
                   onClick={() => scrollCarousel('right')}
-                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block" // Removed hidden md:block
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block"
                 >
                   <ChevronRightIcon />
                 </button>
@@ -843,7 +870,7 @@ function App() {
           )}
         </div>
 
-        {/* New Recipes Overview Page Content */}
+        {/* Recipes Overview Page Content (Nos Recettes) */}
         <div style={getPageTransformStyle('recipesOverview')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
             <section id="recipes-overview-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
                 <div className="flex items-center mb-6">
@@ -855,11 +882,18 @@ function App() {
                 </div>
                 <p className="text-lg text-gray-700 mb-8">Découvrez toutes les façons de trouver l'inspiration culinaire :</p>
 
-                {/* Section: Recettes générées par l'IA */}
+                {/* Section: Générer une Recette IA */}
                 <div className="mb-12 p-8 bg-green-50 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><SparklesIcon className="mr-2"/> Recettes Générées par l'IA</h3>
+                    <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><SparklesIcon className="mr-2"/> Générer une Recette IA</h3>
                     <p className="text-gray-700 mb-4">Laissez notre intelligence artificielle vous concocter des créations uniques, adaptées à vos moindres désirs. Chaque recette est une nouvelle aventure culinaire !</p>
-                    <button onClick={() => handleNavigate('createRecipeForm')} className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Générer une Recette IA</button>
+                    <button onClick={() => handleNavigate('createRecipeForm')} className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Créer une Recette IA</button>
+                </div>
+
+                {/* Section: Rechercher une recette existante par ingrédients */}
+                <div className="mb-12 p-8 bg-purple-50 rounded-lg shadow-md">
+                    <h3 className="text-2xl font-bold text-purple-700 mb-4 flex items-center"><ShoppingCartIcon className="mr-2"/> Rechercher une Recette existante par ingrédients</h3>
+                    <p className="text-gray-700 mb-4">Besoin d'une idée pour vos ingrédients sous la main ? Trouvez des recettes adaptées en un instant dans notre base de données existante.</p>
+                    <button onClick={() => handleNavigate('createRecipeForm')} className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full hover:bg-purple-700 transition-colors">Rechercher par Ingrédients</button>
                 </div>
 
                 {/* Section: Recettes inspirantes existantes */}
@@ -868,12 +902,54 @@ function App() {
                     <p className="text-gray-700 mb-4">Explorez notre bibliothèque de recettes déjà validées, créées par nos experts culinaires et par notre communauté. Idéales pour trouver l'inspiration rapidement !</p>
                     <button onClick={() => handleNavigate('home', 'recipe-carousel-section')} className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors">Explorer les Recettes</button>
                 </div>
+            </section>
+        </div>
 
-                {/* Section: Mes recettes */}
-                <div className="p-8 bg-purple-50 rounded-lg shadow-md">
-                    <h3 className="text-2xl font-bold text-purple-700 mb-4 flex items-center"><UserIcon className="mr-2"/> Mes Recettes</h3>
+        {/* New Profile Page Content (Mon Profil) */}
+        <div style={getPageTransformStyle('profilePage')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
+            <section id="profile-page-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-800">Mon Profil</h2>
+                </div>
+
+                {/* Profile Information */}
+                <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-gray-200 mb-8 flex flex-col md:flex-row items-center justify-between">
+                    <div className="flex items-center space-x-4 mb-6 md:mb-0">
+                        <img
+                            src="https://placehold.co/100x100/A7F3D0/10B981?text=Avatar"
+                            alt="Avatar utilisateur"
+                            className="w-24 h-24 rounded-full object-cover shadow-md"
+                        />
+                        <div>
+                            <h3 className="text-2xl font-bold text-gray-800">Nom de l'Utilisateur</h3>
+                            <p className="text-gray-600">utilisateur@exemple.com</p>
+                        </div>
+                    </div>
+                    <div className="flex flex-col space-y-4 w-full md:w-auto">
+                        <button onClick={() => alert('Notifications')} className="flex items-center justify-center md:justify-start px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-200 transition-colors">
+                            <BellIcon className="mr-2 h-5 w-5"/> Notifications
+                        </button>
+                        <button onClick={() => handleNavigate('home', 'how-it-works')} className="flex items-center justify-center md:justify-start px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-200 transition-colors">
+                            <HelpCircleIcon className="mr-2 h-5 w-5"/> Aide & Fonctionnalités
+                        </button>
+                        <button onClick={() => alert('Paramètres')} className="flex items-center justify-center md:justify-start px-6 py-3 bg-gray-100 text-gray-700 font-semibold rounded-full shadow-sm hover:bg-gray-200 transition-colors">
+                            <SettingsIcon className="mr-2 h-5 w-5"/> Paramètres
+                        </button>
+                    </div>
+                </div>
+
+                {/* Section: Mes Recettes (maintenant dans la page profil) */}
+                <div className="p-8 bg-green-100 rounded-lg shadow-md max-w-3xl mx-auto">
+                    <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><BookOpenIcon className="mr-2"/> Mes Recettes</h3>
                     <p className="text-gray-700 mb-4">Retrouvez toutes vos recettes favorites, celles que vous avez générées ou sauvegardées. Votre carnet de recettes personnel, toujours à portée de main !</p>
-                    <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full hover:bg-purple-700 transition-colors">Voir Mes Recettes</button>
+                    <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Voir Toutes Mes Recettes</button>
+                    {/* Placeholder for actual user recipes list */}
+                    <div className="mt-6 text-center text-gray-500">
+                        <p>Vos recettes sauvegardées apparaîtront ici.</p>
+                    </div>
                 </div>
             </section>
         </div>
@@ -895,7 +971,7 @@ function App() {
             <ShoppingCartIcon className="h-6 w-6"/>
             <span>Panier</span>
           </a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
+          <a href="#" onClick={() => handleNavigate('profilePage')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
             <UserIcon className="h-6 w-6"/>
             <span>Profil</span>
           </a>
