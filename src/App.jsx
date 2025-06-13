@@ -6,15 +6,15 @@ import './index.css'; // Global styles for Tailwind
 import Header from './components/Common/Header';
 import Footer from './components/Common/Footer';
 
-// Import page components
-import HomePage from './components/Pages/HomePage';
-import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage';
-import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage';
-import RecipesOverviewPage from './components/Pages/RecipesOverviewPage';
-import ProfilePage from './components/Pages/ProfilePage';
-import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage';
-import UserLocationMapPage from './components/Pages/UserLocationMapPage';
-import FeatureUsagePage from './components/Pages/FeatureUsagePage';
+// Import page components - IMPORTANT: Added .jsx extension for explicit resolution
+import HomePage from './components/Pages/HomePage.jsx';
+import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
+import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
+import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
+import ProfilePage from './components/Pages/ProfilePage.jsx';
+import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
+import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
+import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
 function App() {
   // Global state for recipe preferences and generation
