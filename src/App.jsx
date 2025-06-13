@@ -150,6 +150,7 @@ function App() {
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
+  const [isAdmin, setIsAdmin] = useState(false); // Nouveau: État pour le mode admin
   
   // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview', 'profilePage', 'analyticsDashboard', 'userLocationMap', 'featureUsage'
   const [currentPage, setCurrentPage] = useState('home');
@@ -974,21 +975,36 @@ function App() {
                     </div>
                 </div>
 
-                {/* New Section: Statistiques et Rapports */}
-                <div className="p-8 bg-blue-100 rounded-lg shadow-md max-w-3xl mx-auto">
-                    <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center"><BarChartIcon className="mr-2"/> Statistiques et Rapports</h3>
-                    <p className="text-gray-700 mb-4">Accédez aux données d'utilisation et aux statistiques de votre site.</p>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
-                        <button onClick={() => handleNavigate('analyticsDashboard')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
-                            <BarChartIcon className="h-8 w-8 mb-2"/> Tableau de Bord
-                        </button>
-                        <button onClick={() => handleNavigate('userLocationMap')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
-                            <GlobeIcon className="h-8 w-8 mb-2"/> Localisation
-                        </button>
-                        <button onClick={() => handleNavigate('featureUsage')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
-                            <PieChartIcon className="h-8 w-8 mb-2"/> Fonct. Utilisées
-                        </button>
-                    </div>
+                {/* New Section: Statistiques et Rapports (Conditionnel pour les admins) */}
+                {isAdmin && (
+                  <div className="p-8 bg-blue-100 rounded-lg shadow-md max-w-3xl mx-auto">
+                      <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center"><BarChartIcon className="mr-2"/> Statistiques et Rapports</h3>
+                      <p className="text-gray-700 mb-4">Accédez aux données d'utilisation et aux statistiques de votre site.</p>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                          <button onClick={() => handleNavigate('analyticsDashboard')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                              <BarChartIcon className="h-8 w-8 mb-2"/> Tableau de Bord
+                          </button>
+                          <button onClick={() => handleNavigate('userLocationMap')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                              <GlobeIcon className="h-8 w-8 mb-2"/> Localisation
+                          </button>
+                          <button onClick={() => handleNavigate('featureUsage')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                              <PieChartIcon className="h-8 w-8 mb-2"/> Fonct. Utilisées
+                          </button>
+                      </div>
+                  </div>
+                )}
+                
+                {/* Bouton pour basculer le mode Admin (pour la démo) */}
+                <div className="text-center mt-8">
+                  <button
+                    type="button"
+                    onClick={() => setIsAdmin(!isAdmin)}
+                    className={`text-sm py-2 px-4 rounded-full transition-colors duration-200 ${
+                      isAdmin ? 'bg-red-200 text-red-800 hover:bg-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                    }`}
+                  >
+                    Bascule Admin Mode: {isAdmin ? 'Activé' : 'Désactivé'}
+                  </button>
                 </div>
             </section>
         </div>
