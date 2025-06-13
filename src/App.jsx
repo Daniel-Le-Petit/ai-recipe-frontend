@@ -3,18 +3,40 @@ import React, { useState, useEffect, useRef } from 'react';
 import './index.css'; // Global styles for Tailwind
 
 // Import common components
-import Header from './components/Common/Header';
-import Footer from './components/Common/Footer';
+import Header from './components/Common/Header.jsx'; // Updated path
+import Footer from './components/Common/Footer.jsx'; // Updated path
+import {
+  LeafIcon,
+  KitchenRobotIcon,
+  CheckCircleIcon,
+  SparklesIcon,
+  ShoppingCartIcon,
+  HomeIcon,
+  LightbulbIcon,
+  BrainIcon,
+  PackageIcon,
+  UserIcon,
+  BellIcon,
+  HelpCircleIcon,
+  SettingsIcon,
+  BookOpenIcon,
+  BarChartIcon,
+  GlobeIcon,
+  PieChartIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
+} from './components/Common/Icons.jsx'; // Updated path and imported all icons directly
 
-// Import page components - IMPORTANT: Added .jsx extension for explicit resolution
-import HomePage from './components/Pages/HomePage.jsx';
-import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
-import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
-import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
-import ProfilePage from './components/Pages/ProfilePage.jsx';
-import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
-import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
-import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
+
+// Import page components - IMPORTANT: Corrected paths to point to 'Common'
+import HomePage from './components/Common/HomePage.jsx';
+import CreateRecipeFormPage from './components/Common/CreateRecipeFormPage.jsx';
+import GeneratedRecipeDisplayPage from './components/Common/GeneratedRecipeDisplayPage.jsx';
+import RecipesOverviewPage from './components/Common/RecipesOverviewPage.jsx';
+import ProfilePage from './components/Common/ProfilePage.jsx';
+import AnalyticsDashboardPage from './components/Common/AnalyticsDashboardPage.jsx';
+import UserLocationMapPage from './components/Common/UserLocationMapPage.jsx';
+import FeatureUsagePage from './components/Common/FeatureUsagePage.jsx';
 
 function App() {
   // Global state for recipe preferences and generation
