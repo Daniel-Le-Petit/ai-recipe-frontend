@@ -65,10 +65,18 @@ const BrainIcon = () => (
 );
 
 const PackageIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package">
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-package">
     <path d="m7.5 4.27 9 5.15"/><path d="m7.5 19.73 9-5.15"/><path d="M3.3 8.7L12 3l8.7 5.7"/><path d="M12 22 3.3 16.3 12 10.5 20.7 16.3Z"/><path d="M12 3v7.5"/><path d="M12 10.5v7.5"/>
   </svg>
 );
+
+// Icône utilisateur pour le pied de page
+const UserIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
+    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+  </svg>
+);
+
 
 function App() {
   const [preferences, setPreferences] = useState({
@@ -249,8 +257,10 @@ function App() {
       </header>
 
       {/* Main content area, will contain the sliding pages */}
-      <main className="flex-1 w-full overflow-hidden relative h-full">
+      {/* Added pb-16 to main to prevent content from being hidden by the fixed footer */}
+      <main className="flex-1 w-full overflow-hidden relative h-full pb-16">
         {/* Home Page Content */}
+        {/* It slides left if not 'home' */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
                        ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}>
           <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
@@ -422,6 +432,7 @@ function App() {
         </div>
 
         {/* Create Recipe Form Page Content */}
+        {/* It slides from right if 'home', or left if 'generatedRecipeDisplay' is active */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
                        ${currentPage === 'createRecipeForm' ? 'translate-x-0' : (currentPage === 'home' ? 'translate-x-full' : '-translate-x-full')} overflow-y-auto`}>
           <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
@@ -602,8 +613,10 @@ function App() {
         </div>
 
         {/* Generated Recipe Display Page Content */}
+        {/* It slides from right if 'createRecipeForm' was the previous page */}
         <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
                        ${currentPage === 'generatedRecipeDisplay' ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}>
+          {/* Only render this section if generatedRecipe is not null, so it doesn't show empty */}
           {generatedRecipe && (
             <section id="generated-recipe-display" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
                 <div className="flex items-center mb-6">
@@ -611,7 +624,7 @@ function App() {
                     <button onClick={() => handleNavigate('createRecipeForm')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     </button>
-                    <h2 className="text-4xl font-bold text-green-700 mb-6 flex items-center">
+                    <h2 className="text-4xl font-bold text-green-700 flex items-center"> {/* Removed mb-6 here as it's already on parent div */}
                         <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
                     </h2>
                 </div>
@@ -631,7 +644,7 @@ function App() {
                             </span>
                         )}
                         {generatedRecipe.robotCompatible && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 ml-2">
                                 Compatible robot de cuisine
                             </span>
                         )}
@@ -671,20 +684,19 @@ function App() {
       </main>
 
       {/* Pied de page simple et élégant, TOUJOURS visible */}
-      <footer className="bg-gray-800 text-gray-300 py-4 text-center fixed bottom-0 left-0 right-0 z-50 rounded-t-xl shadow-lg">
-        <nav className="flex justify-center space-x-8 text-lg">
-          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
+      {/* Increased py to 5 for better vertical padding, used bg-white and shadow for better visual separation */}
+      <footer className="bg-white shadow-lg py-5 text-center fixed bottom-0 left-0 right-0 z-50 rounded-t-xl">
+        <nav className="flex justify-around items-center text-sm"> {/* Changed to justify-around for even spacing */}
+          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
             <PackageIcon className="h-6 w-6"/>
             <span>Recettes</span>
           </a>
-          <a href="#" onClick={() => handleNavigate('home', 'shopping-cart-section')} className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
+          <a href="#" onClick={() => handleNavigate('home', 'shopping-cart-section')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
             <ShoppingCartIcon className="h-6 w-6"/>
             <span>Panier</span>
           </a>
-          <a href="#" className="text-gray-400 hover:text-white transition-colors flex flex-col items-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-user">
-              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
-            </svg>
+          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
+            <UserIcon className="h-6 w-6"/> {/* Using the new UserIcon */}
             <span>Profil</span>
           </a>
         </nav>
