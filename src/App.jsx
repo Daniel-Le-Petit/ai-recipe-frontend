@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './index.css'; // Assurez-vous que ce fichier est bien importé et contient les directives Tailwind
 
 // Définition des icônes utilisées dans l'interface pour améliorer le visuel
@@ -77,6 +77,18 @@ const UserIcon = () => (
   </svg>
 );
 
+const ChevronLeftIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
+    <path d="m15 18-6-6 6-6"/>
+  </svg>
+);
+
+const ChevronRightIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right">
+    <path d="m9 18 6-6-6-6"/>
+  </svg>
+);
+
 
 function App() {
   const [preferences, setPreferences] = useState({
@@ -103,9 +115,13 @@ function App() {
   const [touchEnd, setTouchEnd] = useState(0);
   const minSwipeDistance = 50; // Minimum horizontal distance for a swipe
 
-  // Define the order of pages for linear swipe navigation
-  const pageOrder = ['home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview'];
+  // Define the order of pages for linear swipe navigation (excluding generatedRecipeDisplay)
+  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview'];
 
+  // Refs for carousel navigation
+  const recipeCarouselRef = useRef(null);
+  const [showLeftArrow, setShowLeftArrow] = useState(false);
+  const [showRightArrow, setShowRightArrow] = useState(true); // Assume content to the right initially
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
@@ -206,13 +222,15 @@ function App() {
   const handleNavigate = (pageId, sectionId = null) => {
     setIsMobileMenuOpen(false); // Ferme le menu mobile lors de la navigation
     setCurrentPage(pageId);
-    // Optional: Scroll to top/section after navigation
+    // Scroll to top of the target page content
     setTimeout(() => {
       let targetSectionId;
-      if (pageId === 'createRecipeForm') targetSectionId = 'generate-recipe-form';
+      if (pageId === 'home') targetSectionId = 'hero-section'; // Always scroll to top of home
+      else if (pageId === 'createRecipeForm') targetSectionId = 'generate-recipe-form';
       else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
       else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
-      else if (sectionId && pageId === 'home') targetSectionId = sectionId;
+
+      if (sectionId && pageId === 'home') targetSectionId = sectionId; // Override for specific section on home
 
       if (targetSectionId) {
         const section = document.getElementById(targetSectionId);
@@ -232,21 +250,49 @@ function App() {
   const getPageTransformStyle = (pageId) => {
       const thisPageIndex = pageOrder.indexOf(pageId);
       const activePageIndex = pageOrder.indexOf(currentPage);
+      // If generatedRecipeDisplay is active, and the requested page is NOT generatedRecipeDisplay,
+      // it means we are trying to go back to a main page. So adjust its position.
+      if (currentPage === 'generatedRecipeDisplay' && pageId !== 'generatedRecipeDisplay') {
+          // If we are coming from generatedRecipeDisplay, the 'createRecipeForm' should appear to the left of generatedRecipeDisplay's current position.
+          // This ensures the reverse transition looks correct.
+          if (pageId === 'createRecipeForm') return { transform: `translateX(0%)` }; // Will effectively be left
+          if (pageId === 'home') return { transform: `translateX(-100%)` }; // Will effectively be far left
+          if (pageId === 'recipesOverview') return { transform: `translateX(100%)` }; // Will effectively be right
+      }
+      // Special case: if we are on generatedRecipeDisplay, and the target is home or recipesOverview,
+      // ensure createRecipeForm (which was left behind) appears correctly for the swipe sequence.
+      if (currentPage === 'home' && pageId === 'createRecipeForm') return { transform: `translateX(0%)` };
+      if (currentPage === 'recipesOverview' && pageId === 'createRecipeForm') return { transform: `translateX(0%)` };
+
+
       const offset = (thisPageIndex - activePageIndex) * 100;
       return { transform: `translateX(${offset}%)` };
   };
 
   // Swipe gesture handlers
   const onTouchStart = (e) => {
+      // Prevent global swipe if interaction is within the carousel
+      if (recipeCarouselRef.current && recipeCarouselRef.current.contains(e.target)) {
+        return; 
+      }
       setTouchEnd(null); // Reset touchEnd to null to ensure it's a new swipe
       setTouchStart(e.targetTouches[0].clientX);
   };
 
   const onTouchMove = (e) => {
+      // Prevent global swipe if interaction is within the carousel
+      if (recipeCarouselRef.current && recipeCarouselRef.current.contains(e.target)) {
+        return;
+      }
       setTouchEnd(e.targetTouches[0].clientX);
   };
 
   const onTouchEnd = () => {
+      // Prevent global swipe if interaction was within the carousel
+      if (recipeCarouselRef.current && recipeCarouselRef.current.contains(document.elementFromPoint(touchEnd, 0))) {
+        return;
+      }
+
       if (touchStart === null || touchEnd === null) return; // Ensure touchEnd is not null
       const distance = touchStart - touchEnd;
       const isLeftSwipe = distance > minSwipeDistance;
@@ -265,6 +311,43 @@ function App() {
       }
   };
 
+  // Carousel navigation functions
+  const scrollCarousel = (direction) => {
+    if (recipeCarouselRef.current) {
+      const scrollAmount = recipeCarouselRef.current.offsetWidth * 0.8; // Scroll by 80% of container width
+      if (direction === 'left') {
+        recipeCarouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        recipeCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
+  // Update arrow visibility on carousel scroll
+  const handleCarouselScroll = () => {
+    if (recipeCarouselRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = recipeCarouselRef.current;
+      setShowLeftArrow(scrollLeft > 0);
+      setShowRightArrow(scrollLeft + clientWidth < scrollWidth);
+    }
+  };
+
+  // Initial check and re-check on resize for carousel arrows
+  useEffect(() => {
+    const carouselElement = recipeCarouselRef.current;
+    if (carouselElement) {
+      handleCarouselScroll(); // Initial check
+      carouselElement.addEventListener('scroll', handleCarouselScroll);
+      window.addEventListener('resize', handleCarouselScroll); // Re-check on resize
+    }
+    return () => {
+      if (carouselElement) {
+        carouselElement.removeEventListener('scroll', handleCarouselScroll);
+        window.removeEventListener('resize', handleCarouselScroll);
+      }
+    };
+  }, []); // Run once on mount
+
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
@@ -279,7 +362,7 @@ function App() {
           <a href="#" onClick={() => handleNavigate('home')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
           <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
           <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</a>
-          <a href="#" onClick={() => handleNavigate('recipesOverview')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Recettes</a> {/* Updated to new recipes overview page */}
+          <a href="#" onClick={() => handleNavigate('recipesOverview')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Recettes</a>
           <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
         {/* Burger menu pour mobile (englobe le bouton et le menu déroulant) */}
@@ -292,7 +375,7 @@ function App() {
               <a href="#" onClick={() => handleNavigate('home')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
               <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
               <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
-              <a href="#" onClick={() => handleNavigate('recipesOverview')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Recettes</a> {/* Updated to new recipes overview page */}
+              <a href="#" onClick={() => handleNavigate('recipesOverview')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Recettes</a>
               <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
             </nav>
           )}
@@ -304,7 +387,6 @@ function App() {
       <main className="flex-1 w-full overflow-hidden relative h-full pb-20"
             onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         {/* Home Page Content */}
-        {/* Uses dynamic style for transform for more precise positioning */}
         <div style={getPageTransformStyle('home')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
           <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
@@ -386,13 +468,31 @@ function App() {
             </div>
           </section>
 
-          <section id="recipe-carousel-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
+          <section id="recipe-carousel-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg relative"> {/* Added relative for arrow positioning */}
             {/* Reduced title size */}
             <h2 className="text-3xl md:text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
             <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
               Plongez dans notre collection de recettes visuellement appétissantes et laissez-vous inspirer pour votre prochain chef-d'œuvre culinaire.
             </p>
-            <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide">
+            {/* Carousel container with ref and arrow buttons */}
+            <div className="flex overflow-x-auto space-x-6 pb-8 snap-x snap-mandatory scrollbar-hide relative" ref={recipeCarouselRef}>
+              {showLeftArrow && (
+                <button
+                  onClick={() => scrollCarousel('left')}
+                  className="absolute left-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 hidden md:block" // Hide on small screens
+                >
+                  <ChevronLeftIcon />
+                </button>
+              )}
+              {showRightArrow && (
+                <button
+                  onClick={() => scrollCarousel('right')}
+                  className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 hidden md:block" // Hide on small screens
+                >
+                  <ChevronRightIcon />
+                </button>
+              )}
+
               <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
                 <img
                   src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
@@ -481,7 +581,6 @@ function App() {
         </div>
 
         {/* Create Recipe Form Page Content */}
-        {/* Uses dynamic style for transform for more precise positioning */}
         <div style={getPageTransformStyle('createRecipeForm')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
           <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
             <div className="flex items-center mb-6">
@@ -662,9 +761,9 @@ function App() {
         </div>
 
         {/* Generated Recipe Display Page Content */}
-        {/* Uses dynamic style for transform for more precise positioning */}
+        {/* Only render this section if generatedRecipe is not null, so it doesn't show empty */}
+        {/* This page is NOT part of the linear swipe order */}
         <div style={getPageTransformStyle('generatedRecipeDisplay')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          {/* Only render this section if generatedRecipe is not null, so it doesn't show empty */}
           {generatedRecipe && (
             <section id="generated-recipe-display" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
                 <div className="flex items-center mb-6">
@@ -732,7 +831,6 @@ function App() {
         </div>
 
         {/* New Recipes Overview Page Content */}
-        {/* Uses dynamic style for transform for more precise positioning */}
         <div style={getPageTransformStyle('recipesOverview')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
             <section id="recipes-overview-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
                 <div className="flex items-center mb-6">
