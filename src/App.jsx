@@ -94,8 +94,17 @@ function App() {
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
-  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay'
+  
+  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview'
   const [currentPage, setCurrentPage] = useState('home');
+
+  // For swipe gesture detection
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+  const minSwipeDistance = 50; // Minimum horizontal distance for a swipe
+
+  // Define the order of pages for linear swipe navigation
+  const pageOrder = ['home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview'];
 
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
@@ -138,7 +147,6 @@ function App() {
     e.preventDefault();
     setLoading(true);
     setError('');
-    // setGeneratedRecipe(null); // Keep generated recipe for display on the next "page"
 
     if (mockMode && actionType === 'generateAI') {
       setTimeout(() => {
@@ -198,23 +206,21 @@ function App() {
   const handleNavigate = (pageId, sectionId = null) => {
     setIsMobileMenuOpen(false); // Ferme le menu mobile lors de la navigation
     setCurrentPage(pageId);
-    if (sectionId && pageId === 'home') {
-      setTimeout(() => {
-        const section = document.getElementById(sectionId);
+    // Optional: Scroll to top/section after navigation
+    setTimeout(() => {
+      let targetSectionId;
+      if (pageId === 'createRecipeForm') targetSectionId = 'generate-recipe-form';
+      else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
+      else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
+      else if (sectionId && pageId === 'home') targetSectionId = sectionId;
+
+      if (targetSectionId) {
+        const section = document.getElementById(targetSectionId);
         if (section) {
           section.scrollIntoView({ behavior: 'smooth' });
         }
-      }, 500); // Délai pour laisser la transition de page se terminer
-    } else if (pageId === 'createRecipeForm' || pageId === 'generatedRecipeDisplay') { // Ensure scrolling for new pages too
-        setTimeout(() => {
-            const targetSection = document.getElementById(
-                pageId === 'createRecipeForm' ? 'generate-recipe-form' : 'generated-recipe-display'
-            );
-            if (targetSection) {
-                targetSection.scrollIntoView({ behavior: 'smooth' });
-            }
-        }, 500);
-    }
+      }
+    }, 500);
   };
 
   // Fonction pour basculer le menu mobile
@@ -222,11 +228,48 @@ function App() {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
+  // Function to get the transform style based on current page and page order
+  const getPageTransformStyle = (pageId) => {
+      const thisPageIndex = pageOrder.indexOf(pageId);
+      const activePageIndex = pageOrder.indexOf(currentPage);
+      const offset = (thisPageIndex - activePageIndex) * 100;
+      return { transform: `translateX(${offset}%)` };
+  };
+
+  // Swipe gesture handlers
+  const onTouchStart = (e) => {
+      setTouchEnd(null); // Reset touchEnd to null to ensure it's a new swipe
+      setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+      setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+      if (touchStart === null || touchEnd === null) return; // Ensure touchEnd is not null
+      const distance = touchStart - touchEnd;
+      const isLeftSwipe = distance > minSwipeDistance;
+      const isRightSwipe = distance < -minSwipeDistance;
+
+      const currentIndex = pageOrder.indexOf(currentPage);
+
+      if (isLeftSwipe) { // Swiping left = go to next page in order
+          if (currentIndex < pageOrder.length - 1) {
+              setCurrentPage(pageOrder[currentIndex + 1]);
+          }
+      } else if (isRightSwipe) { // Swiping right = go to previous page in order
+          if (currentIndex > 0) {
+              setCurrentPage(pageOrder[currentIndex - 1]);
+          }
+      }
+  };
+
 
   return (
-    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full"> {/* Added h-full here */}
+    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
       {/* Header avec navigation améliorée */}
-      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20"> {/* Ajout de z-20 pour que le menu soit au-dessus */}
+      <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20">
         <div className="flex items-center space-x-2">
           {/* Logo AI & Fines Herbes avec icône de feuille */}
           <LeafIcon />
@@ -236,11 +279,11 @@ function App() {
           <a href="#" onClick={() => handleNavigate('home')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</a>
           <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><SparklesIcon className="mr-1"/> Fonctionnalités</a>
           <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</a>
-          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Explorer Recettes</a>
+          <a href="#" onClick={() => handleNavigate('recipesOverview')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Recettes</a> {/* Updated to new recipes overview page */}
           <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><ShoppingCartIcon className="mr-1"/> Contact</a>
         </nav>
         {/* Burger menu pour mobile (englobe le bouton et le menu déroulant) */}
-        <div className="relative md:hidden"> {/* Nouveau conteneur relatif pour le positionnement */}
+        <div className="relative md:hidden">
           <button onClick={toggleMobileMenu} className="p-2 rounded-md hover:bg-gray-100 transition-colors z-30">
             <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
           </button>
@@ -249,7 +292,7 @@ function App() {
               <a href="#" onClick={() => handleNavigate('home')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</a>
               <a href="#" onClick={() => handleNavigate('home', 'how-it-works')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><SparklesIcon className="mr-2"/> Fonctionnalités</a>
               <a href="#" onClick={() => handleNavigate('createRecipeForm')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</a>
-              <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Explorer Recettes</a>
+              <a href="#" onClick={() => handleNavigate('recipesOverview')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Recettes</a> {/* Updated to new recipes overview page */}
               <a href="#" onClick={() => handleNavigate('home', 'newsletter')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><ShoppingCartIcon className="mr-2"/> Contact</a>
             </nav>
           )}
@@ -257,16 +300,17 @@ function App() {
       </header>
 
       {/* Main content area, will contain the sliding pages */}
-      {/* Added pb-16 to main to prevent content from being hidden by the fixed footer */}
-      <main className="flex-1 w-full overflow-hidden relative h-full pb-16">
+      {/* Added pb-20 to main to prevent content from being hidden by the fixed footer. Added swipe handlers */}
+      <main className="flex-1 w-full overflow-hidden relative h-full pb-20"
+            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
         {/* Home Page Content */}
-        {/* It slides left if not 'home' */}
-        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
-                       ${currentPage === 'home' ? 'translate-x-0' : '-translate-x-full'} overflow-y-auto`}>
+        {/* Uses dynamic style for transform for more precise positioning */}
+        <div style={getPageTransformStyle('home')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
           <section id="hero-section" className="bg-gradient-to-br from-green-50 to-green-200 py-20 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-xl relative overflow-hidden">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-center space-y-12 md:space-y-0 md:space-x-16">
               <div className="md:w-1/2 text-left z-10">
-                <h1 className="text-5xl md:text-7xl font-extrabold text-green-900 leading-tight mb-6 animate-fade-in-up">
+                {/* Reduced title size */}
+                <h1 className="text-4xl md:text-6xl font-extrabold text-green-900 leading-tight mb-6 animate-fade-in-up">
                   L'art culinaire redéfini par l'IA.
                 </h1>
                 <p className="text-xl md:text-2xl text-gray-800 mb-10 animate-fade-in-up delay-200">
@@ -299,7 +343,8 @@ function App() {
           </section>
 
           <section id="how-it-works" className="py-16 px-6 md:px-12 text-center bg-white rounded-xl mx-4 my-6 shadow-lg">
-            <h2 className="text-4xl md:text-5xl font-bold text-green-800 mb-14">Votre Parcours Culinaire Simplifié</h2>
+            {/* Reduced title size */}
+            <h2 className="text-3xl md:text-4xl font-bold text-green-800 mb-14">Votre Parcours Culinaire Simplifié</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 max-w-6xl mx-auto">
               <div className="flex flex-col items-center p-8 bg-green-50 rounded-2xl shadow-md transform hover:scale-105 transition-transform duration-300">
                 <LightbulbIcon className="h-20 w-20 text-green-600 mb-6" />
@@ -322,7 +367,8 @@ function App() {
           <section className="bg-gradient-to-br from-blue-50 to-blue-100 py-16 px-6 md:px-12 rounded-xl mx-4 my-6 shadow-lg">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center md:space-x-12">
               <div className="md:w-1/2 text-center md:text-left mb-8 md:mb-0">
-                <h2 className="text-4xl md:text-5xl font-bold text-blue-800 mb-6">Une Technologie au Service du Bien-Manger</h2>
+                {/* Reduced title size */}
+                <h2 className="text-3xl md:text-4xl font-bold text-blue-800 mb-6">Une Technologie au Service du Bien-Manger</h2>
                 <p className="text-lg text-gray-700 leading-relaxed mb-6">
                   Notre IA est conçue avec une approche éthique et durable, favorisant les produits frais, de saison, et réduisant le gaspillage alimentaire. Chaque recette est pensée pour votre santé et celle de la planète.
                 </p>
@@ -341,7 +387,8 @@ function App() {
           </section>
 
           <section id="recipe-carousel-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
-            <h2 className="text-4xl md:text-5xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
+            {/* Reduced title size */}
+            <h2 className="text-3xl md:text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Créations Inspirantes</h2>
             <p className="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
               Plongez dans notre collection de recettes visuellement appétissantes et laissez-vous inspirer pour votre prochain chef-d'œuvre culinaire.
             </p>
@@ -403,7 +450,8 @@ function App() {
           </section>
 
           <section id="existing-recipes" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
-            <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
+            {/* Reduced title size */}
+            <h2 className="text-3xl md:text-4xl font-bold text-green-800 text-center mb-10">Découvrez nos Recettes Existantes !</h2>
             <p className="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
               Explorez une variété de créations culinaires déjà disponibles, adaptées à divers goûts et besoins.
             </p>
@@ -414,7 +462,8 @@ function App() {
           </section>
 
           <section id="newsletter" className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+            {/* Reduced title size */}
+            <h2 className="text-3xl md:text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
             <p className="text-lg mb-8 max-w-3xl mx-auto">
               Abonnez-vous à notre newsletter pour ne jamais manquer une inspiration culinaire personnalisée, des astuces anti-gaspillage et des offres exclusives.
             </p>
@@ -432,15 +481,15 @@ function App() {
         </div>
 
         {/* Create Recipe Form Page Content */}
-        {/* It slides from right if 'home', or left if 'generatedRecipeDisplay' is active */}
-        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
-                       ${currentPage === 'createRecipeForm' ? 'translate-x-0' : (currentPage === 'home' ? 'translate-x-full' : '-translate-x-full')} overflow-y-auto`}>
+        {/* Uses dynamic style for transform for more precise positioning */}
+        <div style={getPageTransformStyle('createRecipeForm')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
           <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
             <div className="flex items-center mb-6">
               <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
               </button>
-              <h2 className="text-4xl font-bold text-green-800">Générez Votre Recette Personnalisée !</h2>
+              {/* Reduced title size */}
+              <h2 className="text-3xl md:text-4xl font-bold text-green-800">Générez Votre Recette Personnalisée !</h2>
             </div>
             <form onSubmit={(e) => handleSubmit(e, 'generateAI')} className="max-w-3xl mx-auto p-8 bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl space-y-6 border border-green-200">
               {error && <p className="text-red-600 text-center font-medium">{error}</p>}
@@ -613,9 +662,8 @@ function App() {
         </div>
 
         {/* Generated Recipe Display Page Content */}
-        {/* It slides from right if 'createRecipeForm' was the previous page */}
-        <div className={`absolute inset-0 transition-transform duration-500 ease-in-out
-                       ${currentPage === 'generatedRecipeDisplay' ? 'translate-x-0' : 'translate-x-full'} overflow-y-auto`}>
+        {/* Uses dynamic style for transform for more precise positioning */}
+        <div style={getPageTransformStyle('generatedRecipeDisplay')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
           {/* Only render this section if generatedRecipe is not null, so it doesn't show empty */}
           {generatedRecipe && (
             <section id="generated-recipe-display" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
@@ -624,7 +672,8 @@ function App() {
                     <button onClick={() => handleNavigate('createRecipeForm')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
                     </button>
-                    <h2 className="text-4xl font-bold text-green-700 flex items-center"> {/* Removed mb-6 here as it's already on parent div */}
+                    {/* Reduced title size */}
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-700 flex items-center">
                         <CheckCircleIcon className="mr-3 h-8 w-8 text-green-500" /> {generatedRecipe.title}
                     </h2>
                 </div>
@@ -681,22 +730,62 @@ function App() {
             </section>
           )}
         </div>
+
+        {/* New Recipes Overview Page Content */}
+        {/* Uses dynamic style for transform for more precise positioning */}
+        <div style={getPageTransformStyle('recipesOverview')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
+            <section id="recipes-overview-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    <button onClick={() => handleNavigate('home')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    {/* Reduced title size */}
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-800">Nos Recettes</h2>
+                </div>
+                <p className="text-lg text-gray-700 mb-8">Découvrez toutes les façons de trouver l'inspiration culinaire :</p>
+
+                {/* Section: Recettes générées par l'IA */}
+                <div className="mb-12 p-8 bg-green-50 rounded-lg shadow-md">
+                    <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><SparklesIcon className="mr-2"/> Recettes Générées par l'IA</h3>
+                    <p className="text-gray-700 mb-4">Laissez notre intelligence artificielle vous concocter des créations uniques, adaptées à vos moindres désirs. Chaque recette est une nouvelle aventure culinaire !</p>
+                    <button onClick={() => handleNavigate('createRecipeForm')} className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Générer une Recette IA</button>
+                </div>
+
+                {/* Section: Recettes inspirantes existantes */}
+                <div className="mb-12 p-8 bg-blue-50 rounded-lg shadow-md">
+                    <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center"><PackageIcon className="mr-2"/> Recettes Inspirantes Existantes</h3>
+                    <p className="text-gray-700 mb-4">Explorez notre bibliothèque de recettes déjà validées, créées par nos experts culinaires et par notre communauté. Idéales pour trouver l'inspiration rapidement !</p>
+                    <button onClick={() => handleNavigate('home', 'recipe-carousel-section')} className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition-colors">Explorer les Recettes</button>
+                </div>
+
+                {/* Section: Mes recettes */}
+                <div className="p-8 bg-purple-50 rounded-lg shadow-md">
+                    <h3 className="text-2xl font-bold text-purple-700 mb-4 flex items-center"><UserIcon className="mr-2"/> Mes Recettes</h3>
+                    <p className="text-gray-700 mb-4">Retrouvez toutes vos recettes favorites, celles que vous avez générées ou sauvegardées. Votre carnet de recettes personnel, toujours à portée de main !</p>
+                    <button className="px-6 py-3 bg-purple-600 text-white font-semibold rounded-full hover:bg-purple-700 transition-colors">Voir Mes Recettes</button>
+                </div>
+            </section>
+        </div>
       </main>
 
       {/* Pied de page simple et élégant, TOUJOURS visible */}
-      {/* Increased py to 5 for better vertical padding, used bg-white and shadow for better visual separation */}
-      <footer className="bg-white shadow-lg py-5 text-center fixed bottom-0 left-0 right-0 z-50 rounded-t-xl">
-        <nav className="flex justify-around items-center text-sm"> {/* Changed to justify-around for even spacing */}
-          <a href="#" onClick={() => handleNavigate('home', 'existing-recipes')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
+      {/* Fixed height (h-20) and py-0 (padding is managed by internal flex) */}
+      <footer className="bg-white shadow-lg h-20 text-center fixed bottom-0 left-0 right-0 z-50 rounded-t-xl flex justify-around items-center">
+        <nav className="flex justify-around items-center w-full text-sm h-full">
+          <a href="#" onClick={() => handleNavigate('home')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
+            <HomeIcon className="h-6 w-6"/>
+            <span>Accueil</span>
+          </a>
+          <a href="#" onClick={() => handleNavigate('recipesOverview')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
             <PackageIcon className="h-6 w-6"/>
             <span>Recettes</span>
           </a>
-          <a href="#" onClick={() => handleNavigate('home', 'shopping-cart-section')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
+          <a href="#" onClick={() => handleNavigate('home', 'shopping-cart-section')} className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
             <ShoppingCartIcon className="h-6 w-6"/>
             <span>Panier</span>
           </a>
-          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center px-2 py-1 rounded-md hover:bg-gray-100">
-            <UserIcon className="h-6 w-6"/> {/* Using the new UserIcon */}
+          <a href="#" className="text-gray-600 hover:text-green-700 transition-colors flex flex-col items-center justify-center h-full w-1/4 rounded-md hover:bg-gray-100">
+            <UserIcon className="h-6 w-6"/>
             <span>Profil</span>
           </a>
         </nav>
