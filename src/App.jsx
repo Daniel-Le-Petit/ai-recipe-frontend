@@ -230,9 +230,12 @@ function App() {
       else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
       else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
 
-      if (sectionId && pageId === 'home') targetSectionId = sectionId; // Override for specific section on home
-
-      if (targetSectionId) {
+      if (sectionId && pageId === 'home') { // Override for specific section on home
+          const section = document.getElementById(sectionId);
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth' });
+          }
+      } else if (targetSectionId) {
         const section = document.getElementById(targetSectionId);
         if (section) {
           section.scrollIntoView({ behavior: 'smooth' });
@@ -248,25 +251,31 @@ function App() {
 
   // Function to get the transform style based on current page and page order
   const getPageTransformStyle = (pageId) => {
-      const thisPageIndex = pageOrder.indexOf(pageId);
-      const activePageIndex = pageOrder.indexOf(currentPage);
-      // If generatedRecipeDisplay is active, and the requested page is NOT generatedRecipeDisplay,
-      // it means we are trying to go back to a main page. So adjust its position.
-      if (currentPage === 'generatedRecipeDisplay' && pageId !== 'generatedRecipeDisplay') {
-          // If we are coming from generatedRecipeDisplay, the 'createRecipeForm' should appear to the left of generatedRecipeDisplay's current position.
-          // This ensures the reverse transition looks correct.
-          if (pageId === 'createRecipeForm') return { transform: `translateX(0%)` }; // Will effectively be left
-          if (pageId === 'home') return { transform: `translateX(-100%)` }; // Will effectively be far left
-          if (pageId === 'recipesOverview') return { transform: `translateX(100%)` }; // Will effectively be right
+    // If the generated recipe page is active, it's treated as a distinct overlay.
+    // Other pages are 'hidden' off to the left.
+    if (currentPage === 'generatedRecipeDisplay') {
+      if (pageId === 'generatedRecipeDisplay') {
+        return { transform: `translateX(0%)` };
+      } else {
+        // Any other page should be off-screen to the left when generatedRecipeDisplay is active
+        return { transform: `translateX(-100%)` };
       }
-      // Special case: if we are on generatedRecipeDisplay, and the target is home or recipesOverview,
-      // ensure createRecipeForm (which was left behind) appears correctly for the swipe sequence.
-      if (currentPage === 'home' && pageId === 'createRecipeForm') return { transform: `translateX(0%)` };
-      if (currentPage === 'recipesOverview' && pageId === 'createRecipeForm') return { transform: `translateX(0%)` };
+    }
 
+    // For the main sequential pages (home, createRecipeForm, recipesOverview)
+    const thisPageIndex = pageOrder.indexOf(pageId);
+    const activePageIndex = pageOrder.indexOf(currentPage);
 
-      const offset = (thisPageIndex - activePageIndex) * 100;
-      return { transform: `translateX(${offset}%)` };
+    // If a page is not part of the current navigation context, hide it off-screen right by default.
+    // This helps prevent "empty pages" if the pageId isn't meant to be seen in the current context.
+    if (thisPageIndex === -1 || activePageIndex === -1) {
+        // This case should ideally not be hit for pages managed by pageOrder,
+        // but it's a safeguard for pages like generatedRecipeDisplay when it's not the active one.
+        return { transform: `translateX(100%)` };
+    }
+
+    const offset = (thisPageIndex - activePageIndex) * 100;
+    return { transform: `translateX(${offset}%)` };
   };
 
   // Swipe gesture handlers
@@ -290,6 +299,10 @@ function App() {
   const onTouchEnd = () => {
       // Prevent global swipe if interaction was within the carousel
       if (recipeCarouselRef.current && recipeCarouselRef.current.contains(document.elementFromPoint(touchEnd, 0))) {
+        return;
+      }
+      // If generatedRecipeDisplay is currently active, prevent swipe navigation from exiting it.
+      if (currentPage === 'generatedRecipeDisplay') {
         return;
       }
 
@@ -792,7 +805,7 @@ function App() {
                             </span>
                         )}
                         {generatedRecipe.robotCompatible && (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 ml-2">
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800"> {/* Removed ml-2 here */}
                                 Compatible robot de cuisine
                             </span>
                         )}
