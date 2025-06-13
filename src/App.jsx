@@ -114,6 +114,25 @@ const BookOpenIcon = () => (
   </svg>
 );
 
+// New icons for analytics pages
+const BarChartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-bar-chart-2">
+    <line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/>
+  </svg>
+);
+
+const GlobeIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-globe">
+    <circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/>
+  </svg>
+);
+
+const PieChartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pie-chart">
+    <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+  </svg>
+);
+
 
 function App() {
   const [preferences, setPreferences] = useState({
@@ -132,7 +151,7 @@ function App() {
   const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // État pour le menu mobile
   
-  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview', 'profilePage'
+  // Updated currentPage states: 'home', 'createRecipeForm', 'generatedRecipeDisplay', 'recipesOverview', 'profilePage', 'analyticsDashboard', 'userLocationMap', 'featureUsage'
   const [currentPage, setCurrentPage] = useState('home');
 
   // For swipe gesture detection
@@ -141,7 +160,7 @@ function App() {
   const minSwipeDistance = 50; // Minimum horizontal distance for a swipe
 
   // Define the order of pages for linear swipe navigation (excluding generatedRecipeDisplay)
-  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview', 'profilePage'];
+  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview', 'profilePage', 'analyticsDashboard', 'userLocationMap', 'featureUsage'];
 
   // Refs for carousel navigation
   const recipeCarouselRef = useRef(null);
@@ -255,6 +274,9 @@ function App() {
       else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
       else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
       else if (pageId === 'profilePage') targetSectionId = 'profile-page-section';
+      else if (pageId === 'analyticsDashboard') targetSectionId = 'analytics-dashboard-section';
+      else if (pageId === 'userLocationMap') targetSectionId = 'user-location-map-section';
+      else if (pageId === 'featureUsage') targetSectionId = 'feature-usage-section';
 
 
       if (sectionId && pageId === 'home') { // Override for specific section on home
@@ -289,7 +311,7 @@ function App() {
       }
     }
 
-    // For the main sequential pages (home, createRecipeForm, recipesOverview, profilePage)
+    // For the main sequential pages (home, createRecipeForm, recipesOverview, profilePage, analyticsDashboard, userLocationMap, featureUsage)
     const thisPageIndex = pageOrder.indexOf(pageId);
     const activePageIndex = pageOrder.indexOf(currentPage);
 
@@ -942,7 +964,7 @@ function App() {
                 </div>
 
                 {/* Section: Mes Recettes (maintenant dans la page profil) */}
-                <div className="p-8 bg-green-100 rounded-lg shadow-md max-w-3xl mx-auto">
+                <div className="p-8 bg-green-100 rounded-lg shadow-md max-w-3xl mx-auto mb-8">
                     <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><BookOpenIcon className="mr-2"/> Mes Recettes</h3>
                     <p className="text-gray-700 mb-4">Retrouvez toutes vos recettes favorites, celles que vous avez générées ou sauvegardées. Votre carnet de recettes personnel, toujours à portée de main !</p>
                     <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Voir Toutes Mes Recettes</button>
@@ -951,8 +973,134 @@ function App() {
                         <p>Vos recettes sauvegardées apparaîtront ici.</p>
                     </div>
                 </div>
+
+                {/* New Section: Statistiques et Rapports */}
+                <div className="p-8 bg-blue-100 rounded-lg shadow-md max-w-3xl mx-auto">
+                    <h3 className="text-2xl font-bold text-blue-700 mb-4 flex items-center"><BarChartIcon className="mr-2"/> Statistiques et Rapports</h3>
+                    <p className="text-gray-700 mb-4">Accédez aux données d'utilisation et aux statistiques de votre site.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <button onClick={() => handleNavigate('analyticsDashboard')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                            <BarChartIcon className="h-8 w-8 mb-2"/> Tableau de Bord
+                        </button>
+                        <button onClick={() => handleNavigate('userLocationMap')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                            <GlobeIcon className="h-8 w-8 mb-2"/> Localisation
+                        </button>
+                        <button onClick={() => handleNavigate('featureUsage')} className="flex flex-col items-center justify-center p-4 bg-blue-500 text-white font-semibold rounded-lg shadow-md hover:bg-blue-600 transition-colors h-24">
+                            <PieChartIcon className="h-8 w-8 mb-2"/> Fonct. Utilisées
+                        </button>
+                    </div>
+                </div>
             </section>
         </div>
+
+        {/* Analytics Dashboard Page Content */}
+        <div style={getPageTransformStyle('analyticsDashboard')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
+            <section id="analytics-dashboard-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    <button onClick={() => handleNavigate('profilePage')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-800">Tableau de Bord Analytique</h2>
+                </div>
+                <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {/* Card: Utilisateurs Connectés */}
+                    <div className="bg-blue-50 p-6 rounded-lg shadow-md flex flex-col items-center">
+                        <h3 className="text-xl font-semibold text-blue-800 mb-4">Utilisateurs Connectés</h3>
+                        <p className="text-5xl font-bold text-blue-600">42</p>
+                        <p className="text-gray-600">actuellement en ligne</p>
+                    </div>
+
+                    {/* Card: Vues de Pages */}
+                    <div className="bg-green-50 p-6 rounded-lg shadow-md flex flex-col items-center">
+                        <h3 className="text-xl font-semibold text-green-800 mb-4">Vues de Pages</h3>
+                        <p className="text-4xl font-bold text-green-600">12 450</p>
+                        <p className="text-gray-600">vues totales ce mois-ci</p>
+                        <p className="text-xl font-bold text-green-600 mt-2">8 700</p>
+                        <p className="text-gray-600">vues uniques ce mois-ci</p>
+                    </div>
+
+                    {/* Card: Temps de Connexion */}
+                    <div className="bg-yellow-50 p-6 rounded-lg shadow-md flex flex-col items-center">
+                        <h3 className="text-xl font-semibold text-yellow-800 mb-4">Temps de Connexion Moyen</h3>
+                        <p className="text-5xl font-bold text-yellow-600">03:45</p>
+                        <p className="text-gray-600">minutes par session</p>
+                    </div>
+
+                    {/* Placeholder for Graphs */}
+                    <div className="lg:col-span-3 bg-gray-100 p-6 rounded-lg shadow-md h-64 flex items-center justify-center text-gray-500">
+                        <p>Graphiques d'activité des pages et du temps de connexion ici (données réelles via backend)</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        {/* User Location Map Page Content */}
+        <div style={getPageTransformStyle('userLocationMap')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
+            <section id="user-location-map-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    <button onClick={() => handleNavigate('profilePage')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-800">Localisation des Utilisateurs</h2>
+                </div>
+                <div className="max-w-6xl mx-auto p-8 bg-gray-100 rounded-lg shadow-md">
+                    <p className="text-center text-gray-600 mb-6">Visualisez l'origine géographique de vos utilisateurs.</p>
+                    <div className="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center text-gray-500 overflow-hidden relative">
+                        {/* Placeholder for World Map */}
+                        <img
+                          src="https://placehold.co/800x400/D1D5DB/6B7280?text=Carte+du+Monde+(Placeholder)"
+                          alt="Carte du monde"
+                          className="w-full h-full object-cover"
+                        />
+                        {/* Example data points (mocked) */}
+                        <div className="absolute w-4 h-4 bg-red-500 rounded-full animate-pulse" style={{top: '30%', left: '20%'}} title="Utilisateurs en Amérique du Nord"></div>
+                        <div className="absolute w-4 h-4 bg-red-500 rounded-full animate-pulse" style={{top: '50%', left: '50%'}} title="Utilisateurs en Europe"></div>
+                        <div className="absolute w-4 h-4 bg-red-500 rounded-full animate-pulse" style={{top: '65%', left: '80%'}} title="Utilisateurs en Asie"></div>
+                    </div>
+                    <div className="mt-8 text-center text-gray-600">
+                      <p>Les données de localisation réelles nécessiteraient une intégration backend spécifique (par exemple, via des adresses IP anonymisées).</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        {/* Feature Usage Page Content */}
+        <div style={getPageTransformStyle('featureUsage')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
+            <section id="feature-usage-section" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg">
+                <div className="flex items-center mb-6">
+                    <button onClick={() => handleNavigate('profilePage')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
+                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                    </button>
+                    <h2 className="text-3xl md:text-4xl font-bold text-green-800">Utilisation des Fonctionnalités</h2>
+                </div>
+                <div className="max-w-6xl mx-auto p-8 bg-gray-100 rounded-lg shadow-md">
+                    <p className="text-center text-gray-600 mb-6">Visualisez les fonctionnalités les plus populaires de votre application.</p>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-xl font-semibold text-green-700 mb-3 flex items-center"><SparklesIcon className="mr-2"/> Générer une Recette IA</h3>
+                            <p className="text-4xl font-bold text-green-600">75%</p>
+                            <p className="text-gray-600">des utilisateurs l'utilisent régulièrement</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-xl font-semibold text-purple-700 mb-3 flex items-center"><ShoppingCartIcon className="mr-2"/> Rechercher une Recette existante</h3>
+                            <p className="text-4xl font-bold text-purple-600">50%</p>
+                            <p className="text-gray-600">des utilisateurs l'utilisent souvent</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-xl font-semibold text-blue-700 mb-3 flex items-center"><PackageIcon className="mr-2"/> Explorer les Recettes Inspirantes</h3>
+                            <p className="text-4xl font-bold text-blue-600">60%</p>
+                            <p className="text-gray-600">des utilisateurs l'explorent</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-lg shadow-sm">
+                            <h3 className="text-xl font-semibold text-orange-700 mb-3 flex items-center"><BookOpenIcon className="mr-2"/> Voir Mes Recettes</h3>
+                            <p className="text-4xl font-bold text-orange-600">30%</p>
+                            <p className="text-gray-600">des utilisateurs consultent leurs recettes</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
       </main>
 
       {/* Pied de page simple et élégant, TOUJOURS visible */}
