@@ -1,4 +1,4 @@
-// src/App.jsx
+// src/App.jsx - for  a test
 import React, { useState, useEffect, useRef } from 'react';
 import './index.css'; // Global styles for Tailwind
 
