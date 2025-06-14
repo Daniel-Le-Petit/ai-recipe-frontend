@@ -285,12 +285,14 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
-      {/* Header component */}
-      <Header 
-        handleNavigate={handleNavigate} 
-        toggleMobileMenu={toggleMobileMenu} 
-        isMobileMenuOpen={isMobileMenuOpen} 
-      />
+      {/* Header visible seulement sur desktop */}
+      <div className="hidden md:block">
+        <Header 
+          handleNavigate={handleNavigate} 
+          toggleMobileMenu={toggleMobileMenu} 
+          isMobileMenuOpen={isMobileMenuOpen} 
+        />
+      </div>
 
       {/* Main content area: contains sliding pages */}
       {/* Added pb-20 to main to prevent content from being hidden by the fixed footer. Added swipe handlers */}
@@ -356,8 +358,10 @@ function App() {
 
       </main>
 
-      {/* Footer component */}
-      <Footer handleNavigate={handleNavigate} />
+      {/* Footer visible seulement sur mobile */}
+      <div className="block md:hidden">
+        <Footer handleNavigate={handleNavigate} />
+      </div>
     </div>
   );
 }
