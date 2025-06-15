@@ -32,7 +32,7 @@ function AppContent() {
     // Il est recommandé d'initialiser ReactGA une seule fois par session
     // et de s'assurer que l'ID de mesure est valide.
     // Vous pouvez ajouter une condition ici si l'ID est une variable d'environnement ou autre.
-    ReactGA.initialize('VOTRE_MEASUREMENT_ID_GA4');
+    ReactGA.initialize('G-493418792');
   }, []); // Le tableau vide assure que cela ne s'exécute qu'une fois au montage
 
   // Global state for recipe preferences and generation
