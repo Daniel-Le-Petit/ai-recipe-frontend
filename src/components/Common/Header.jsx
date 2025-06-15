@@ -1,262 +1,102 @@
-// frontend/src/App.jsx
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'; // Added lazy and Suspense
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import './index.css'; // Global styles for Tailwind - Chemin d'importation corrigé pour être relatif à src/
-import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
+// src/components/Common/Header.jsx
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom'; // Import de Link et useNavigate
+// Correction du chemin d'importation pour index.css
+import '../../index.css'; 
+import { LeafIcon, SparklesIcon, BrainIcon, PackageIcon, ShoppingCartIcon, HomeIcon } from './Icons'; // Import des icônes
 
-// Import des composants communs (CHEMINS VÉRIFIÉS)
-import Header from './components/Common/Header.jsx';
-import Footer from './components/Common/Footer.jsx';
-import {
-  LeafIcon, KitchenRobotIcon, CheckCircleIcon, SparklesIcon, ShoppingCartIcon, HomeIcon, LightbulbIcon,
-  BrainIcon, PackageIcon, UserIcon, BellIcon, HelpCircleIcon, SettingsIcon, BookOpenIcon, BarChartIcon,
-  GlobeIcon, PieChartIcon, ChevronLeftIcon, ChevronRightIcon // Toutes les icônes nécessaires
-} from './components/Common/Icons.jsx'; // S'assure que toutes les icônes sont bien importées
+const Header = ({ isAdmin, setIsAdmin }) => { // navigate est supprimé car on utilise le hook ici
+  const navigate = useNavigate(); // Initialisation du hook navigate
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); // Gérer l'état du menu mobile en interne
 
-// Import des composants de page (CHEMINS CORRIGÉS VERS 'Pages')
-import HomePage from './components/Pages/HomePage.jsx'; // HomePage is loaded eagerly
-const CreateRecipeFormPage = lazy(() => import('./components/Pages/CreateRecipeFormPage.jsx'));
-const GeneratedRecipeDisplayPage = lazy(() => import('./components/Pages/GeneratedRecipeDisplayPage.jsx'));
-const RecipesOverviewPage = lazy(() => import('./components/Pages/RecipesOverviewPage.jsx'));
-const ProfilePage = lazy(() => import('./components/Pages/ProfilePage.jsx'));
-const AnalyticsDashboardPage = lazy(() => import('./components/Pages/AnalyticsDashboardPage.jsx'));
-const UserLocationMapPage = lazy(() => import('./components/Pages/UserLocationMapPage.jsx'));
-const FeatureUsagePage = lazy(() => import('./components/Pages/FeatureUsagePage.jsx'));
-
-
-function AppContent() {
-  // Initialisation de Google Analytics 4 au montage du composant AppContent.
-  // REMPLACEZ 'VOTRE_MEASUREMENT_ID_GA4' par l'ID de mesure que vous avez obtenu de Google Analytics (ex: 'G-XXXXXXXXXX')
-  // Si vous ne l'avez pas, mettez-le en commentaire pour le moment: // ReactGA.initialize('VOTRE_MEASUREMENT_ID_GA4');
-  useEffect(() => {
-    // Il est recommandé d'initialiser ReactGA une seule fois par session
-    // et de s'assurer que l'ID de mesure est valide.
-    // Vous pouvez ajouter une condition ici si l'ID est une variable d'environnement ou autre.
-    ReactGA.initialize('G-493418792');
-  }, []); // Le tableau vide assure que cela ne s'exécute qu'une fois au montage
-
-  // Global state for recipe preferences and generation
-  const [preferences, setPreferences] = useState({
-    cuisineType: '',
-    numPeople: 1,
-    maxDuration: 60,
-    difficulty: 'Facile',
-    ingredients: '',
-    maxIngredients: 10,
-    recipeGoal: '',
-    robotCompatible: false,
-  });
-  const [generatedRecipe, setGeneratedRecipe] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [mockMode, setMockMode] = useState(true);
-  
-  // Admin mode state (for conceptual demonstration of admin dashboards)
-  const [isAdmin, setIsAdmin] = useState(false); // Simulate admin role
-
-  const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
-
-  // Mock data for AI recipe generation (used when mockMode is true)
-  const mockAiRecipe = {
-    title: "Curry de Légumes Express (Mocké AI)",
-    duration: "30 minutes",
-    ingredients: [
-      { name: "Lait de coco", quantity: "400ml" },
-      { name: "Pois chiches (en conserve)", quantity: "1 boîte" },
-      { name: "Épinards frais", quantity: "200g" },
-      { name: "Pâte de curry rouge", quantity: "2 c. à soupe" },
-      { name: "Oignon", quantity: "1" },
-      { name: "Ail", quantity: "2 gousses" },
-      { name: "Gingembre frais", quantity: "1 morceau" },
-      { name: "Riz Basmati", quantity: "200g" }
-    ],
-    steps: [
-      "Faire revenir l'oignon, l'ail et le gingembre hachés dans un filet d'huile.",
-      "Ajouter la pâte de curry et faire cuire 1 minute.",
-      "Incorporer le lait de coco et les pois chiches égouttés.",
-      "Laisser mijoter 15 minutes à feu doux.",
-      "Ajouter les épinards et cuire jusqu'à ce qu'ils soient flétris.",
-      "Servir avec du riz Basmati."
-    ],
-    aiTested: true,
-    robotCompatible: true,
-    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
   };
 
-  // Handler for form submission (generating AI recipe or searching existing)
-  const handleSubmit = async (e, actionType = 'generateAI') => { // actionType par défaut
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setGeneratedRecipe(null); // Reset generated recipe on new submission
-
-    // If in mock mode, simulate API call with a delay
-    if (mockMode && actionType === 'generateAI') {
-      setTimeout(() => {
-        setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
-        setLoading(false);
-      }, 1500);
-      return;
+  // Fonction de navigation qui peut aussi gérer le défilement vers une section spécifique de la page d'accueil
+  // Utilise navigate de React Router
+  const handleNavigationAndScroll = (path, sectionId = null) => {
+    if (sectionId && path === '/') {
+      navigate(path); // Navigue d'abord à la racine
+      setTimeout(() => { // Laisse le temps à la navigation de se faire
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    } else {
+      navigate(path);
     }
-
-    // Prepare data to send to the backend
-    let dataToSend = {
-      actionType: actionType,
-      cuisineType: preferences.cuisineType,
-      numPeople: preferences.numPeople,
-      maxDuration: preferences.maxDuration,
-      difficulty: preferences.difficulty,
-      ingredients: preferences.ingredients
-                   .split(',')
-                   .map(item => item.trim())
-                   .filter(item => item.length > 0),
-      maxIngredients: preferences.maxIngredients,
-      recipeGoal: preferences.recipeGoal,
-      robotCompatible: preferences.robotCompatible,
-    };
-
-    try {
-      // Make the API call to your Strapi backend
-      const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(dataToSend),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || `Erreur HTTP! Statut: ${response.status}`);
-      }
-
-      const data = await response.json();
-      if (data.recipe) {
-        setGeneratedRecipe(data.recipe);
-      } else {
-        setGeneratedRecipe(data); // In case 'recipe' field is not directly present
-      }
-      
-    } catch (err) {
-      console.error("Erreur de génération de recette:", err);
-      setError(err.message || "Une erreur inattendue est survenue lors de la génération de recette.");
-    } finally {
-      setLoading(false);
-    }
+    setIsMobileMenuOpen(false); // Ferme le menu mobile après navigation
   };
-
-
-  // Google Analytics 4 (GA4) Tracking avec React Router
-  const location = useLocation();
-  useEffect(() => {
-    // N'envoyez l'événement que si VOTRE_MEASUREMENT_ID_GA4 est remplacé par un ID réel
-    if (ReactGA.isInitialized) { // Correction ici : ReactGA.isInitialized est une propriété booléenne, pas une fonction
-      ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
-    }
-  }, [location]);
 
   return (
-    // Suppression de la classe h-full sur le div racine. min-h-screen est suffisant.
-    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
-      {/* Header component (utilisera Link de React Router directement) */}
-      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
-
-      {/* Main content area: Routes will render components here */}
-      {/* Suppression de h-full. flex-1 gère déjà la hauteur dans le flex-col. */}
-      {/* `overflow-hidden` est maintenu pour la navigation horizontale des pages. */}
-      <main className="flex-1 w-full overflow-hidden relative pb-20">
-        <Suspense fallback={<div className="text-center p-8">Chargement des fonctionnalités...</div>}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/generate-recipe"
-              element={
-                <CreateRecipeFormPage
-                  preferences={preferences}
-                  setPreferences={setPreferences} // Passe le setter des préférences
-                  handleSubmit={handleSubmit}
-                  loading={loading}
-                  error={error}
-                  mockMode={mockMode}
-                  setMockMode={setMockMode}
-                  setGeneratedRecipe={setGeneratedRecipe} // Passe le setter pour la recette générée
-                />
-              }
-            />
-            <Route
-              path="/generated-recipe"
-              element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} />}
-            />
-            <Route path="/recipes-overview" element={<RecipesOverviewPage />} />
-            <Route
-              path="/profile"
-              element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} />}
-            />
-            {/* Routes d'administration, affichées conditionnellement dans le Header */}
+    <header className="bg-white shadow-sm py-4 px-6 md:px-12 flex justify-between items-center rounded-b-xl relative z-20">
+      <div className="flex items-center space-x-2">
+        <Link to="/" className="flex items-center space-x-2 text-green-700"> {/* Lien vers la page d'accueil */}
+          <LeafIcon />
+          <span className="font-bold text-2xl">AI & Fines Herbes</span>
+        </Link>
+      </div>
+      <nav className="hidden md:flex space-x-6 text-lg">
+        <Link to="/" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><HomeIcon className="mr-1"/> Accueil</Link>
+        <button onClick={() => handleNavigationAndScroll('/', 'how-it-works')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center bg-transparent border-none cursor-pointer">
+          <SparklesIcon className="mr-1"/> Fonctionnalités
+        </button>
+        <Link to="/generate-recipe" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><BrainIcon className="mr-1"/> Créer</Link>
+        <Link to="/recipes-overview" className="text-gray-600 hover:text-green-700 transition-colors flex items-center"><PackageIcon className="mr-1"/> Recettes</Link>
+        <button onClick={() => handleNavigationAndScroll('/', 'newsletter')} className="text-gray-600 hover:text-green-700 transition-colors flex items-center bg-transparent border-none cursor-pointer">
+          <ShoppingCartIcon className="mr-1"/> Contact
+        </button>
+        {/* Liens Admin - Conditionnels */}
+        {isAdmin && (
+          <>
+            <Link to="/admin/analytics" className="text-gray-600 hover:text-green-700 transition-colors flex items-center">Analytics</Link>
+            <Link to="/admin/locations" className="text-gray-600 hover:text-green-700 transition-colors flex items-center">Locations</Link>
+            <Link to="/admin/feature-usage" className="text-gray-600 hover:text-green-700 transition-colors flex items-center">Feature Usage</Link>
+          </>
+        )}
+      </nav>
+      <div className="relative md:hidden">
+        <button onClick={toggleMobileMenu} className="p-2 rounded-md hover:bg-gray-100 transition-colors z-30">
+          <svg className="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+        </button>
+        {isMobileMenuOpen && (
+          <nav className="absolute top-full right-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl py-2 z-40 w-48">
+            <Link to="/" onClick={() => handleNavigationAndScroll('/')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><HomeIcon className="mr-2"/> Accueil</Link>
+            <button onClick={() => handleNavigationAndScroll('/', 'how-it-works')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center text-left w-full bg-transparent border-none cursor-pointer">
+              <SparklesIcon className="mr-2"/> Fonctionnalités
+            </button>
+            <Link to="/generate-recipe" onClick={() => handleNavigationAndScroll('/generate-recipe')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><BrainIcon className="mr-2"/> Créer</Link>
+            <Link to="/recipes-overview" onClick={() => handleNavigationAndScroll('/recipes-overview')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center"><PackageIcon className="mr-2"/> Recettes</Link>
+            <button onClick={() => handleNavigationAndScroll('/', 'newsletter')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center text-left w-full bg-transparent border-none cursor-pointer">
+              <ShoppingCartIcon className="mr-2"/> Contact
+            </button>
             {isAdmin && (
               <>
-                <Route path="/admin/analytics" element={<AnalyticsDashboardPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-                <Route path="/admin/locations" element={<UserLocationMapPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-                <Route path="/admin/feature-usage" element={<FeatureUsagePage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+                <div className="border-t border-gray-200 my-1"></div>
+                <Link to="/admin/analytics" onClick={() => handleNavigationAndScroll('/admin/analytics')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center">Analytics</Link>
+                <Link to="/admin/locations" onClick={() => handleNavigationAndScroll('/admin/locations')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center">Locations</Link>
+                <Link to="/admin/feature-usage" onClick={() => handleNavigationAndScroll('/admin/feature-usage')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center">Feature Usage</Link>
               </>
             )}
-            {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
-            {!isAdmin && (
-                <Route path="/admin/*" element={
-                    <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"> {/* Ajout overflow-y-auto pour que cette page d'erreur soit défilable */}
-                        <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
-                        <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
-                    </div>
-                } />
-            )}
-
-            {/* Ajoutez d'autres routes si nécessaire */}
-            <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
-            <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
-            
-            {/* Route pour les pages non trouvées (404) */}
-            <Route path="*" element={
-              <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto">
-                <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
-                <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
-              </div>
-            } />
-          </Routes>
-        </Suspense>
-      </main>
-
-      {/* Section Newsletter - En bas de page */}
-      {/* Cette section est déplaçable dans HomePage.jsx si elle doit défiler avec le contenu de la page d'accueil */}
-      {/* Si elle reste ici, elle sera fixe en bas si elle est à l'intérieur du main, ou hors du main mais son style doit être ajusté pour ne pas être écrasé */}
-      <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
-        <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
-        <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
-        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
-          <input
-            type="email"
-            placeholder="Email@adresse.com"
-            className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
-          />
-          <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
-            Je m'inscris
-          </button>
-        </div>
-      </section>
-
-      {/* Footer component (utilisera Link de React Router directement) */}
-      <Footer />
-    </div>
+            <div className="border-t border-gray-200 my-1"></div>
+            <Link to="/profile" onClick={() => handleNavigationAndScroll('/profile')} className="block px-4 py-2 text-gray-700 hover:bg-gray-100 transition-colors flex items-center">Profil</Link>
+            {/* Bouton pour basculer le mode Admin - uniquement pour la démo */}
+            <div className="px-4 py-2 text-center mt-2">
+              <button
+                type="button"
+                onClick={() => setIsAdmin(!isAdmin)}
+                className={`text-sm py-1 px-3 rounded-full transition-colors duration-200 ${
+                  isAdmin ? 'bg-red-200 text-red-800 hover:bg-red-300' : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                }`}
+              >
+                Admin: {isAdmin ? 'On' : 'Off'}
+              </button>
+            </div>
+          </nav>
+        )}
+      </div>
+    </header>
   );
-}
+};
 
-// Composant racine de l'application qui englobe AppContent avec le Router
-function App() {
-  return (
-    <Router>
-      <AppContent />
-    </Router>
-  );
-}
-
-export default App;
+export default Header;
 
