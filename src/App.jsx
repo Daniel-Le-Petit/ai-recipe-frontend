@@ -1,44 +1,30 @@
-// src/App.jsx - for  a test
-import React, { useState, useEffect, useRef } from 'react';
+// frontend/src/App.jsx
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './index.css'; // Global styles for Tailwind
+import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
 
-// Import common components
-import Header from './components/Common/Header.jsx'; // Updated path
-import Footer from './components/Common/Footer.jsx'; // Updated path
-import {
-  LeafIcon,
-  KitchenRobotIcon,
-  CheckCircleIcon,
-  SparklesIcon,
-  ShoppingCartIcon,
-  HomeIcon,
-  LightbulbIcon,
-  BrainIcon,
-  PackageIcon,
-  UserIcon,
-  BellIcon,
-  HelpCircleIcon,
-  SettingsIcon,
-  BookOpenIcon,
-  BarChartIcon,
-  GlobeIcon,
-  PieChartIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon
-} from './components/Common/Icons.jsx'; // Updated path and imported all icons directly
+// Import des composants communs
+import Header from './components/Common/Header.jsx';
+import Footer from './components/Common/Footer.jsx';
+
+// Import des composants de page (maintenant séparés)
+import HomePage from './components/Pages/HomePage.jsx';
+import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
+import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
+import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
+import ProfilePage from './components/Pages/ProfilePage.jsx';
+import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
+import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
+import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
 
-// Import page components - IMPORTANT: Corrected paths to point to 'Common'
-import HomePage from './components/Common/HomePage.jsx';
-import CreateRecipeFormPage from './components/Common/CreateRecipeFormPage.jsx';
-import GeneratedRecipeDisplayPage from './components/Common/GeneratedRecipeDisplayPage.jsx';
-import RecipesOverviewPage from './components/Common/RecipesOverviewPage.jsx';
-import ProfilePage from './components/Common/ProfilePage.jsx';
-import AnalyticsDashboardPage from './components/Common/AnalyticsDashboardPage.jsx';
-import UserLocationMapPage from './components/Common/UserLocationMapPage.jsx';
-import FeatureUsagePage from './components/Common/FeatureUsagePage.jsx';
+// Initialisation de Google Analytics 4 au démarrage de l'application.
+// C'est un point clé : L'ID de mesure doit être celui de votre propriété GA4.
+// REMPLACEZ 'VOTRE_MEASUREMENT_ID_GA4' par l'ID de mesure que vous avez obtenu de Google Analytics (ex: 'G-XXXXXXXXXX')
+ReactGA.initialize('G-493418792');
 
-function App() {
+function AppContent() {
   // Global state for recipe preferences and generation
   const [preferences, setPreferences] = useState({
     cuisineType: '',
@@ -53,23 +39,11 @@ function App() {
   const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [mockMode, setMockMode] = useState(true); // Initialisé en mode mock
-
-  // UI state for navigation and mobile menu
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState('home'); // Current active page
-
+  const [mockMode, setMockMode] = useState(true);
+  
   // Admin mode state (for conceptual demonstration of admin dashboards)
   const [isAdmin, setIsAdmin] = useState(false); // Simulate admin role
-
-  // For swipe gesture detection
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-  const minSwipeDistance = 50; // Minimum horizontal distance for a swipe
-
-  // Define the order of pages for linear swipe navigation (excluding generatedRecipeDisplay)
-  // This array defines the sequence of pages that can be navigated by swiping.
-  const pageOrder = ['home', 'createRecipeForm', 'recipesOverview', 'profilePage', 'analyticsDashboard', 'userLocationMap', 'featureUsage'];
+  const [currentPage, setCurrentPage] = useState('home'); // State to manage current page in App.jsx
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
@@ -100,27 +74,19 @@ function App() {
     imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
   };
 
-  // Handler for form input changes
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setPreferences((prev) => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value,
-    }));
-  };
-
   // Handler for form submission (generating AI recipe or searching existing)
-  const handleSubmit = async (e, actionType) => {
+  const handleSubmit = async (e, actionType = 'generateAI') => { // actionType par défaut
     e.preventDefault();
     setLoading(true);
     setError('');
+    setGeneratedRecipe(null); // Reset generated recipe on new submission
 
     // If in mock mode, simulate API call with a delay
     if (mockMode && actionType === 'generateAI') {
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
-        setCurrentPage('generatedRecipeDisplay'); // Transition to the recipe display page
+        setCurrentPage('generatedRecipeDisplay'); // Navigate to display page after mock generation
       }, 1500);
       return;
     }
@@ -159,7 +125,7 @@ function App() {
       const data = await response.json();
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
-        setCurrentPage('generatedRecipeDisplay'); // Transition to the recipe display page
+        setCurrentPage('generatedRecipeDisplay'); // Navigate to display page after successful generation
       } else {
         setGeneratedRecipe(data); // In case 'recipe' field is not directly present
       }
@@ -172,198 +138,124 @@ function App() {
     }
   };
 
-  // Function to handle page navigation
-  const handleNavigate = (pageId, sectionId = null) => {
-    setIsMobileMenuOpen(false); // Close mobile menu on navigation
-    setCurrentPage(pageId);
-    // Scroll to top of the target page content after a short delay for animation
-    setTimeout(() => {
-      let targetSectionId;
-      if (pageId === 'home') targetSectionId = 'hero-section';
-      else if (pageId === 'createRecipeForm') targetSectionId = 'generate-recipe-form';
-      else if (pageId === 'generatedRecipeDisplay') targetSectionId = 'generated-recipe-display';
-      else if (pageId === 'recipesOverview') targetSectionId = 'recipes-overview-section';
-      else if (pageId === 'profilePage') targetSectionId = 'profile-page-section';
-      else if (pageId === 'analyticsDashboard') targetSectionId = 'analytics-dashboard-section';
-      else if (pageId === 'userLocationMap') targetSectionId = 'user-location-map-section';
-      else if (pageId === 'featureUsage') targetSectionId = 'feature-usage-section';
 
-      // If a specific section ID is provided for the home page, scroll to that section.
-      // Otherwise, scroll to the top of the determined target page section.
-      if (sectionId && pageId === 'home') {
-          const section = document.getElementById(sectionId);
-          if (section) {
-            section.scrollIntoView({ behavior: 'smooth' });
-          }
-      } else if (targetSectionId) {
-        const section = document.getElementById(targetSectionId);
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth' });
-        }
-      }
-    }, 500); // Delay matches CSS transition duration
-  };
-
-  // Function to toggle mobile navigation menu
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
-  // Function to get the transform style for each page based on the current page
-  // This creates the sliding page effect.
-  const getPageTransformStyle = (pageId) => {
-    // Special handling for generatedRecipeDisplay, which can appear as an overlay/separate view
-    if (currentPage === 'generatedRecipeDisplay') {
-      if (pageId === 'generatedRecipeDisplay') {
-        return { transform: `translateX(0%)` }; // Show this page
-      } else {
-        // Hide all other pages to the left when generatedRecipeDisplay is active
-        return { transform: `translateX(-100%)` };
-      }
+  // Function to handle navigation between pages and optionally scroll to sections
+  const handleNavigate = (page, sectionId = null) => {
+    setCurrentPage(page);
+    // Logic for scrolling to a specific section on the home page
+    if (page === 'home' && sectionId) {
+      setTimeout(() => {
+        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
     }
-
-    // For the main sequence of pages (home, createRecipeForm, etc.)
-    const thisPageIndex = pageOrder.indexOf(pageId);
-    const activePageIndex = pageOrder.indexOf(currentPage);
-
-    // If a page is not part of the defined sequence or is not meant to be active in the current flow,
-    // position it off-screen to the right by default as a safeguard.
-    if (thisPageIndex === -1 || activePageIndex === -1) {
-        return { transform: `translateX(100%)` };
-    }
-
-    // Calculate the horizontal offset to slide pages
-    const offset = (thisPageIndex - activePageIndex) * 100;
-    return { transform: `translateX(${offset}%)` };
   };
 
-  // Swipe gesture handlers for horizontal navigation
-  const onTouchStart = (e) => {
-      // Prevent global swipe if interaction is within the carousel
-      if (e.target.closest('.scrollbar-hide') || currentPage === 'generatedRecipeDisplay') {
-        return; 
-      }
-      setTouchEnd(null); // Reset touchEnd for a new swipe gesture
-      setTouchStart(e.targetTouches[0].clientX);
-  };
 
-  const onTouchMove = (e) => {
-      // Prevent global swipe if interaction is within the carousel
-      if (e.target.closest('.scrollbar-hide') || currentPage === 'generatedRecipeDisplay') {
-        return;
-      }
-      setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const onTouchEnd = () => {
-      // If generatedRecipeDisplay is currently active, prevent swipe navigation from exiting it.
-      if (currentPage === 'generatedRecipeDisplay') {
-        return;
-      }
-
-      if (touchStart === null || touchEnd === null) return; // Ensure valid swipe points
-      const distance = touchStart - touchEnd;
-      const isLeftSwipe = distance > minSwipeDistance; // Swiping left means going to the next page
-      const isRightSwipe = distance < -minSwipeDistance; // Swiping right means going to the previous page
-
-      const currentIndex = pageOrder.indexOf(currentPage);
-
-      if (isLeftSwipe) { 
-          if (currentIndex < pageOrder.length - 1) {
-              setCurrentPage(pageOrder[currentIndex + 1]);
-          }
-      } else if (isRightSwipe) { 
-          if (currentIndex > 0) {
-              setCurrentPage(pageOrder[currentIndex - 1]);
-          }
-      }
-      // Reset touch points after swipe
-      setTouchStart(0);
-      setTouchEnd(0);
-  };
+  // Google Analytics 4 (GA4) Tracking avec React Router
+  // Le hook `useLocation` de React Router permet de suivre les changements d'URL
+  // qui sont déclenchés par la navigation interne (ex: Link to="/ma-page").
+  const location = useLocation();
+  useEffect(() => {
+    // Envoie un événement de page vue à GA4 à chaque changement de route
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]); // Déclenché à chaque changement de l'objet location (donc à chaque changement de route)
 
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
-      {/* Header visible seulement sur desktop */}
-      <div className="hidden md:block">
-        <Header 
-          handleNavigate={handleNavigate} 
-          toggleMobileMenu={toggleMobileMenu} 
-          isMobileMenuOpen={isMobileMenuOpen} 
-        />
-      </div>
+      {/* Header component - passe isAdmin et setIsAdmin pour le toggle de mode admin */}
+      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} handleNavigate={handleNavigate} />
 
-      {/* Main content area: contains sliding pages */}
-      {/* Added pb-20 to main to prevent content from being hidden by the fixed footer. Added swipe handlers */}
-      <main className="flex-1 w-full overflow-hidden relative h-full pb-20"
-            onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}>
-        
-        {/* HomePage Component */}
-        <div style={getPageTransformStyle('home')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <HomePage handleNavigate={handleNavigate} />
-        </div>
-
-        {/* CreateRecipeFormPage Component */}
-        <div style={getPageTransformStyle('createRecipeForm')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <CreateRecipeFormPage 
-            preferences={preferences} 
-            handleChange={handleChange} 
-            handleSubmit={handleSubmit} 
-            loading={loading} 
-            error={error} 
-            mockMode={mockMode} 
-            setMockMode={setMockMode} 
-            handleNavigate={handleNavigate}
+      {/* Main content area: Routes will render components here */}
+      <main className="flex-1 w-full overflow-hidden relative h-full pb-20">
+        <Routes>
+          <Route path="/" element={<HomePage handleNavigate={handleNavigate} />} />
+          <Route
+            path="/generate-recipe"
+            element={
+              <CreateRecipeFormPage
+                preferences={preferences}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                loading={loading}
+                error={error}
+                mockMode={mockMode}
+                setMockMode={setMockMode}
+                handleNavigate={handleNavigate}
+              />
+            }
           />
-        </div>
-
-        {/* GeneratedRecipeDisplayPage Component */}
-        {/* This page appears when a recipe is generated and is not part of the linear swipe. */}
-        <div style={getPageTransformStyle('generatedRecipeDisplay')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <GeneratedRecipeDisplayPage 
-            generatedRecipe={generatedRecipe} 
-            handleNavigate={handleNavigate} 
+          <Route
+            path="/generated-recipe"
+            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} handleNavigate={handleNavigate} />}
           />
-        </div>
-
-        {/* RecipesOverviewPage Component */}
-        <div style={getPageTransformStyle('recipesOverview')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <RecipesOverviewPage handleNavigate={handleNavigate} />
-        </div>
-
-        {/* ProfilePage Component */}
-        <div style={getPageTransformStyle('profilePage')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <ProfilePage 
-            handleNavigate={handleNavigate} 
-            isAdmin={isAdmin} 
-            setIsAdmin={setIsAdmin} 
+          <Route path="/recipes-overview" element={<RecipesOverviewPage handleNavigate={handleNavigate} />} />
+          <Route
+            path="/profile"
+            element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} handleNavigate={handleNavigate} />}
           />
-        </div>
+          {/* Routes d'administration, affichées conditionnellement dans le Header */}
+          {isAdmin && (
+            <>
+              <Route path="/admin/analytics" element={<AnalyticsDashboardPage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/locations" element={<UserLocationMapPage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/feature-usage" element={<FeatureUsagePage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+            </>
+          )}
+          {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
+          {!isAdmin && (
+              <Route path="/admin/*" element={
+                  <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center">
+                      <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
+                      <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
+                  </div>
+              } />
+          )}
 
-        {/* AnalyticsDashboardPage Component */}
-        <div style={getPageTransformStyle('analyticsDashboard')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <AnalyticsDashboardPage handleNavigate={handleNavigate} />
-        </div>
-
-        {/* UserLocationMapPage Component */}
-        <div style={getPageTransformStyle('userLocationMap')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <UserLocationMapPage handleNavigate={handleNavigate} />
-        </div>
-
-        {/* FeatureUsagePage Component */}
-        <div style={getPageTransformStyle('featureUsage')} className="absolute inset-0 transition-transform duration-500 ease-in-out overflow-y-auto">
-          <FeatureUsagePage handleNavigate={handleNavigate} />
-        </div>
-
+          {/* Ajoutez d'autres routes si nécessaire */}
+          <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
+          <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
+          
+          {/* Route pour les pages non trouvées (404) */}
+          <Route path="*" element={
+            <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center">
+              <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
+              <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
+            </div>
+          } />
+        </Routes>
       </main>
 
-      {/* Footer visible seulement sur mobile */}
-      <div className="block md:hidden">
-        <Footer handleNavigate={handleNavigate} />
-      </div>
+      {/* Section Newsletter - En bas de page */}
+      <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
+        <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+        <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <input
+            type="email"
+            placeholder="Email@adresse.com"
+            className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+          />
+          <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
+            Je m'inscris
+          </button>
+        </div>
+      </section>
+
+      {/* Footer component */}
+      <Footer handleNavigate={handleNavigate} />
     </div>
   );
 }
 
+// Composant racine de l'application qui englobe AppContent avec le Router
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
 export default App;
+
