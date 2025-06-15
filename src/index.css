@@ -1,12 +1,30 @@
-/* frontend/src/index.css */
+/* Importations de base de Tailwind CSS */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* src/index.css */
-html, body, #root {
-  height: 100%; /* Important pour que l'application prenne toute la hauteur du viewport */
-  margin: 0;
-  padding: 0;
-  overflow: hidden; /* Empêche le défilement global du body lorsque les pages glissent */
+/* Styles globaux pour le document HTML et le corps */
+html, body { /* AJOUT DE 'html' ICI */
+    height: 100%; /* TRÈS IMPORTANT : Assure que HTML et BODY prennent toute la hauteur de la fenêtre */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
+
+body {
+    font-family: 'Inter', sans-serif; /* Application de la police Inter */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+/* Cache la barre de défilement pour les éléments avec la classe 'scrollbar-hide' */
+.scrollbar-hide {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+}
+
+/* Cache la barre de défilement pour Webkit (Chrome, Safari) */
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
+}
+
