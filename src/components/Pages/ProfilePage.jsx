@@ -3,12 +3,13 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import de useNavigate
 import { BellIcon, HelpCircleIcon, SettingsIcon, BookOpenIcon, BarChartIcon, GlobeIcon, PieChartIcon } from '../Common/Icons'; // Importez les icônes
 
-const ProfilePage = ({ isAdmin, setIsAdmin }) => { // Plus besoin de handleNavigate en prop
-  const navigate = useNavigate(); // Initialisation du hook navigate
+const ProfilePage = ({ isAdmin, setIsAdmin }) => { // Supprimé handleNavigate
+  const navigate = useNavigate(); // Initialisation du hook de navigation
 
   return (
     <section id="profile-page-section" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
       <div className="flex items-center mb-6">
+        {/* Utilisation de useNavigate pour le bouton de retour */}
         <button onClick={() => navigate('/')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </button>
@@ -43,7 +44,7 @@ const ProfilePage = ({ isAdmin, setIsAdmin }) => { // Plus besoin de handleNavig
       <div className="p-8 bg-green-100 rounded-lg shadow-md max-w-3xl mx-auto mb-8">
         <h3 className="text-2xl font-bold text-green-700 mb-4 flex items-center"><BookOpenIcon className="mr-2"/> Mes Recettes</h3>
         <p className="text-gray-700 mb-4">Retrouvez toutes vos recettes favorites, celles que vous avez générées ou sauvegardées. Votre carnet de recettes personnel, toujours à portée de main !</p>
-        <button onClick={() => navigate('/recipes-overview')} className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Voir Toutes Mes Recettes</button>
+        <button className="px-6 py-3 bg-green-600 text-white font-semibold rounded-full hover:bg-green-700 transition-colors">Voir Toutes Mes Recettes</button>
         <div className="mt-6 text-center text-gray-500">
             <p>Vos recettes sauvegardées apparaîtront ici.</p>
         </div>

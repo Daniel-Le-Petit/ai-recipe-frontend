@@ -1,3 +1,3 @@
 git add .
-git commit -m "feat: Finalisation de l'intégration Google Analytics 4 avec ID G-493418792"
-git push
+git commit -m "refactor: Reorganized frontend components into Common and Pages directories and updated imports for React Router consistency"
+git push origin dev

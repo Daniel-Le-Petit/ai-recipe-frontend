@@ -1,14 +1,15 @@
 // src/components/Pages/CreateRecipeFormPage.jsx
 import React from 'react';
-import { useNavigate } from 'react-router-dom'; // Import de useNavigate
 import { SparklesIcon, ShoppingCartIcon, KitchenRobotIcon } from '../Common/Icons'; // Importez les icônes
+import { useNavigate } from 'react-router-dom'; // Import de useNavigate
 
-const CreateRecipeFormPage = ({ preferences, handleChange, handleSubmit, loading, error, mockMode, setMockMode }) => {
-  const navigate = useNavigate(); // Initialisation du hook navigate
+const CreateRecipeFormPage = ({ preferences, handleChange, handleSubmit, loading, error, mockMode, setMockMode }) => { // Supprimé handleNavigate
+  const navigate = useNavigate(); // Initialisation du hook de navigation
 
   return (
     <section id="generate-recipe-form" className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg flex-1">
       <div className="flex items-center mb-6">
+        {/* Utilisation de useNavigate pour le bouton de retour */}
         <button onClick={() => navigate('/')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </button>

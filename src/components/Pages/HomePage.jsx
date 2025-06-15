@@ -1,10 +1,10 @@
 // src/components/Pages/HomePage.jsx
 import React, { useRef, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Import de useNavigate
+import { useNavigate } from 'react-router-dom'; // Import de useNavigate pour la navigation
 import { SparklesIcon, ShoppingCartIcon, LightbulbIcon, BrainIcon, PackageIcon, ChevronLeftIcon, ChevronRightIcon } from '../Common/Icons'; // Importez les icônes
 
-const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise useNavigate
-  const navigate = useNavigate(); // Initialisation du hook navigate
+const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise useNavigate directement
+  const navigate = useNavigate(); // Hook pour naviguer programmatiquement
   const recipeCarouselRef = useRef(null);
   const [showLeftArrow, setShowLeftArrow] = useState(false);
   const [showRightArrow, setShowRightArrow] = useState(true);
@@ -46,6 +46,10 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
     };
   }, []);
 
+  const handleCreateRecipeClick = () => {
+    navigate('/generate-recipe'); // Navigue vers la page de génération de recette
+  };
+
 
   return (
     <>
@@ -60,12 +64,12 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             </p>
             <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4 animate-fade-in-up delay-400">
               <button
-                onClick={() => navigate('/generate-recipe')} {/* Utilisation de navigate */}
+                onClick={handleCreateRecipeClick}
                 className="px-8 py-4 bg-green-700 text-white font-bold rounded-full shadow-lg hover:bg-green-800 transition-all duration-300 transform hover:scale-105 flex items-center justify-center text-lg"
               >
                 <SparklesIcon className="mr-3 h-6 w-6" /> Créez votre recette
               </button>
-              <button onClick={() => navigate('/recipes-overview')} className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
+              <button className="px-8 py-4 bg-white text-green-700 border border-green-400 font-bold rounded-full shadow-md hover:bg-green-50 transition-all duration-300 transform hover:scale-105 flex items-center justify-center">
                 <ShoppingCartIcon className="mr-3 h-6 w-6" /> Découvrez le panier
               </button>
             </div>
@@ -149,7 +153,6 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             </button>
           )}
 
-          {/* Les recettes du carrousel pourraient être des Link vers des pages de détail si elles existent */}
           <div className="flex-none w-80 md:w-96 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-shadow duration-300 snap-center">
             <img
               src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
@@ -159,7 +162,7 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
               <p className="text-gray-600 text-sm">Un plat léger et rapide, parfait pour l'été.</p>
-              <button onClick={() => navigate('/recipes-overview')} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
             </div>
           </div>
 
@@ -172,7 +175,7 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
               <p className="text-gray-600 text-sm">Un classique réconfortant pour les soirées fraîches.</p>
-              <button onClick={() => navigate('/recipes-overview')} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
             </div>
           </div>
 
@@ -185,7 +188,7 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
               <p className="text-gray-600 text-sm">Rapidité et saveur, le plat idéal pour un dîner express.</p>
-              <button onClick={() => navigate('/recipes-overview')} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
             </div>
           </div>
 
@@ -198,7 +201,7 @@ const HomePage = () => { // Plus besoin de handleNavigate en prop, on utilise us
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
               <p className="text-gray-600 text-sm">Une soupe réconfortante et pleine de nutriments.</p>
-              <button onClick={() => navigate('/recipes-overview')} className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
+              <button className="mt-4 px-4 py-2 bg-green-600 text-white rounded-full text-sm hover:bg-green-700 transition-colors">Voir la recette</button>
             </div>
           </div>
         </div>
