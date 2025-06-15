@@ -52,6 +52,7 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
             src={generatedRecipe.imageUrl}
             alt={generatedRecipe.title}
             className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
+            loading="lazy"
             onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
           />
         )}
@@ -109,3 +110,4 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
 };
 
 export default GeneratedRecipeDisplayPage;
+

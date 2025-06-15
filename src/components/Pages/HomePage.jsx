@@ -79,6 +79,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/376464/pexels-photo-376464.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Plat de cuisine saine généré par IA"
               className="w-full max-w-lg rounded-3xl shadow-2xl transform rotate-1 hover:rotate-0 transition-transform duration-500 ease-out animate-fade-in-right"
+              loading="lazy"
             />
           </div>
         </div>
@@ -125,6 +126,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/3184196/pexels-photo-3184196.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Cuisine saine et éthique"
               className="w-2/3 md:w-full max-w-xs rounded-2xl shadow-xl transform -rotate-3 hover:rotate-0 transition-transform duration-500 ease-out"
+              loading="lazy"
             />
           </div>
         </div>
@@ -148,6 +150,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
             <button
               onClick={() => scrollCarousel('right')}
               className="absolute right-0 top-1/2 -translate-y-1/2 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 focus:outline-none z-10 block"
+              aria-label="Recettes suivantes"
             >
               <ChevronRightIcon />
             </button>
@@ -158,6 +161,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/109968/pexels-photo-109968.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Salade Fraîche et Végétarienne"
               className="w-full h-52 object-cover rounded-t-2xl"
+              loading="lazy"
             />
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Salade Fraîche et Végétarienne</h3>
@@ -171,6 +175,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/2097090/pexels-photo-2097090.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Curry de Poulet aux Épices Douces"
               className="w-full h-52 object-cover rounded-t-2xl"
+              loading="lazy"
             />
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Curry de Poulet aux Épices Douces</h3>
@@ -184,6 +189,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Pâtes Crémeuses aux Champignons"
               className="w-full h-52 object-cover rounded-t-2xl"
+              loading="lazy"
             />
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Pâtes Crémeuses aux Champignons</h3>
@@ -197,6 +203,7 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
               src="https://images.pexels.com/photos/106343/pexels-photo-106343.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
               alt="Soupe de Lentilles Corail et Carottes"
               className="w-full h-52 object-cover rounded-t-2xl"
+              loading="lazy"
             />
             <div className="p-6">
               <h3 className="text-xl font-bold text-gray-800 mb-2">Soupe de Lentilles Corail et Carottes</h3>
@@ -239,4 +246,5 @@ const HomePage = () => { // handleNavigate n'est plus passé ici, on utilise use
 };
 
 export default HomePage;
+
 

@@ -1,170 +1,262 @@
-import React, { useState, useEffect } from 'react';
+// frontend/src/App.jsx
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'; // Added lazy and Suspense
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import './index.css'; // Global styles for Tailwind - Chemin d'importation corrigé pour être relatif à src/
+import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
 
-// Icône de chargement (Spinner)
-const SpinnerIcon = () => (
-  <svg className="animate-spin h-8 w-8 text-green-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-  </svg>
-);
+// Import des composants communs (CHEMINS VÉRIFIÉS)
+import Header from './components/Common/Header.jsx';
+import Footer from './components/Common/Footer.jsx';
+import {
+  LeafIcon, KitchenRobotIcon, CheckCircleIcon, SparklesIcon, ShoppingCartIcon, HomeIcon, LightbulbIcon,
+  BrainIcon, PackageIcon, UserIcon, BellIcon, HelpCircleIcon, SettingsIcon, BookOpenIcon, BarChartIcon,
+  GlobeIcon, PieChartIcon, ChevronLeftIcon, ChevronRightIcon // Toutes les icônes nécessaires
+} from './components/Common/Icons.jsx'; // S'assure que toutes les icônes sont bien importées
 
-// Composant RecipeList pour afficher les recettes
-const RecipeList = () => {
-  const [recipes, setRecipes] = useState([]); // État pour stocker la liste des recettes
-  const [loading, setLoading] = useState(true); // État de chargement des données
-  const [error, setError] = useState(null); // État pour les erreurs
+// Import des composants de page (CHEMINS CORRIGÉS VERS 'Pages')
+import HomePage from './components/Pages/HomePage.jsx'; // HomePage is loaded eagerly
+const CreateRecipeFormPage = lazy(() => import('./components/Pages/CreateRecipeFormPage.jsx'));
+const GeneratedRecipeDisplayPage = lazy(() => import('./components/Pages/GeneratedRecipeDisplayPage.jsx'));
+const RecipesOverviewPage = lazy(() => import('./components/Pages/RecipesOverviewPage.jsx'));
+const ProfilePage = lazy(() => import('./components/Pages/ProfilePage.jsx'));
+const AnalyticsDashboardPage = lazy(() => import('./components/Pages/AnalyticsDashboardPage.jsx'));
+const UserLocationMapPage = lazy(() => import('./components/Pages/UserLocationMapPage.jsx'));
+const FeatureUsagePage = lazy(() => import('./components/Pages/FeatureUsagePage.jsx'));
 
-  // URL de votre backend Strapi, lue depuis la variable d'environnement
-  // CORRECTION : Utilisation de import.meta.env.VITE_APP_STRAPI_API_URL pour la production
+
+function AppContent() {
+  // Initialisation de Google Analytics 4 au montage du composant AppContent.
+  // REMPLACEZ 'VOTRE_MEASUREMENT_ID_GA4' par l'ID de mesure que vous avez obtenu de Google Analytics (ex: 'G-XXXXXXXXXX')
+  // Si vous ne l'avez pas, mettez-le en commentaire pour le moment: // ReactGA.initialize('VOTRE_MEASUREMENT_ID_GA4');
+  useEffect(() => {
+    // Il est recommandé d'initialiser ReactGA une seule fois par session
+    // et de s'assurer que l'ID de mesure est valide.
+    // Vous pouvez ajouter une condition ici si l'ID est une variable d'environnement ou autre.
+    ReactGA.initialize('G-493418792');
+  }, []); // Le tableau vide assure que cela ne s'exécute qu'une fois au montage
+
+  // Global state for recipe preferences and generation
+  const [preferences, setPreferences] = useState({
+    cuisineType: '',
+    numPeople: 1,
+    maxDuration: 60,
+    difficulty: 'Facile',
+    ingredients: '',
+    maxIngredients: 10,
+    recipeGoal: '',
+    robotCompatible: false,
+  });
+  const [generatedRecipe, setGeneratedRecipe] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [mockMode, setMockMode] = useState(true);
+  
+  // Admin mode state (for conceptual demonstration of admin dashboards)
+  const [isAdmin, setIsAdmin] = useState(false); // Simulate admin role
+
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
-  useEffect(() => {
-    const fetchRecipes = async () => {
-      try {
-        // Effectue une requête GET pour récupérer toutes les recettes depuis Strapi
-        // L'API ID pour la collection 'recipie' est 'api::recipie.recipie'
-        // Strapi génère un endpoint pluriel par default pour les collections
-        const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipies`); 
+  // Mock data for AI recipe generation (used when mockMode is true)
+  const mockAiRecipe = {
+    title: "Curry de Légumes Express (Mocké AI)",
+    duration: "30 minutes",
+    ingredients: [
+      { name: "Lait de coco", quantity: "400ml" },
+      { name: "Pois chiches (en conserve)", quantity: "1 boîte" },
+      { name: "Épinards frais", quantity: "200g" },
+      { name: "Pâte de curry rouge", quantity: "2 c. à soupe" },
+      { name: "Oignon", quantity: "1" },
+      { name: "Ail", quantity: "2 gousses" },
+      { name: "Gingembre frais", quantity: "1 morceau" },
+      { name: "Riz Basmati", quantity: "200g" }
+    ],
+    steps: [
+      "Faire revenir l'oignon, l'ail et le gingembre hachés dans un filet d'huile.",
+      "Ajouter la pâte de curry et faire cuire 1 minute.",
+      "Incorporer le lait de coco et les pois chiches égouttés.",
+      "Laisser mijoter 15 minutes à feu doux.",
+      "Ajouter les épinards et cuire jusqu'à ce qu'ils soient flétris.",
+      "Servir avec du riz Basmati."
+    ],
+    aiTested: true,
+    robotCompatible: true,
+    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
+  };
 
-        if (!response.ok) {
-          throw new Error(`Erreur HTTP! Statut: ${response.status}`);
-        }
+  // Handler for form submission (generating AI recipe or searching existing)
+  const handleSubmit = async (e, actionType = 'generateAI') => { // actionType par défaut
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    setGeneratedRecipe(null); // Reset generated recipe on new submission
 
-        const data = await response.json();
-        // Strapi renvoie les données de collection sous la forme { data: [...], meta: {...} }
-        // Vérifie si data.data est un tableau avant de le définir
-        if (Array.isArray(data.data)) {
-          setRecipes(data.data); 
-        } else {
-          // Log pour comprendre une structure de réponse inattendue
-          console.error("La réponse de l'API /api/recipies n'est pas un tableau de données attendu:", data);
-          setError("Structure de données inattendue reçue du serveur.");
-        }
-      } catch (err) {
-        console.error("Erreur lors de la récupération des recettes:", err);
-        setError("Erreur lors du chargement des recettes. Veuillez réessayer.");
-      } finally {
-        setLoading(false); // Désactive le chargement une fois la requête terminée
-      }
+    // If in mock mode, simulate API call with a delay
+    if (mockMode && actionType === 'generateAI') {
+      setTimeout(() => {
+        setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
+        setLoading(false);
+      }, 1500);
+      return;
+    }
+
+    // Prepare data to send to the backend
+    let dataToSend = {
+      actionType: actionType,
+      cuisineType: preferences.cuisineType,
+      numPeople: preferences.numPeople,
+      maxDuration: preferences.maxDuration,
+      difficulty: preferences.difficulty,
+      ingredients: preferences.ingredients
+                   .split(',')
+                   .map(item => item.trim())
+                   .filter(item => item.length > 0),
+      maxIngredients: preferences.maxIngredients,
+      recipeGoal: preferences.recipeGoal,
+      robotCompatible: preferences.robotCompatible,
     };
 
-    fetchRecipes();
-  }, []); // Le tableau vide assure que l'effet ne s'exécute qu'une seule fois au montage du composant
+    try {
+      // Make the API call to your Strapi backend
+      const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(dataToSend),
+      });
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <SpinnerIcon />
-        <p className="ml-3 text-lg text-gray-700">Chargement des recettes...</p>
-      </div>
-    );
-  }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || `Erreur HTTP! Statut: ${response.status}`);
+      }
 
-  if (error) {
-    return (
-      <div className="text-center text-red-600 font-semibold p-4">
-        <p>{error}</p>
-      </div>
-    );
-  }
+      const data = await response.json();
+      if (data.recipe) {
+        setGeneratedRecipe(data.recipe);
+      } else {
+        setGeneratedRecipe(data); // In case 'recipe' field is not directly present
+      }
+      
+    } catch (err) {
+      console.error("Erreur de génération de recette:", err);
+      setError(err.message || "Une erreur inattendue est survenue lors de la génération de recette.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  if (recipes.length === 0) {
-    return (
-      <div className="text-center text-gray-600 p-4">
-        <p>Aucune recette trouvée pour le moment.</p>
-      </div>
-    );
-  }
+
+  // Google Analytics 4 (GA4) Tracking avec React Router
+  const location = useLocation();
+  useEffect(() => {
+    // N'envoyez l'événement que si VOTRE_MEASUREMENT_ID_GA4 est remplacé par un ID réel
+    if (ReactGA.isInitialized) { // Correction ici : ReactGA.isInitialized est une propriété booléenne, pas une fonction
+      ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+    }
+  }, [location]);
 
   return (
-    <section className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
-      <h2 className="text-4xl font-bold text-green-800 text-center mb-10">Nos Recettes Existantess</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-        {recipes.map((recipe) => {
-          // Determine the correct object to extract attributes from
-          // This handles cases where attributes might be directly on 'recipe' object
-          // (e.g., for entries created directly in Strapi admin or older versions)
-          // or nested under 'attributes' (standard Strapi API response).
-          const itemAttributes = recipe.attributes || recipe;
+    // Suppression de la classe h-full sur le div racine. min-h-screen est suffisant.
+    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
+      {/* Header component (utilisera Link de React Router directement) */}
+      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
 
-          // Debugging log to see the resolved attributes
-          console.log("Resolved itemAttributes:", itemAttributes);
-
-          // Use itemAttributes.id for the key to ensure it exists
-          // Enhanced check: ensure id is a number and not 0 or falsy if it implies an invalid entry.
-          if (!itemAttributes || typeof itemAttributes.id !== 'number' || itemAttributes.id <= 0) {
-            console.warn("Skipping malformed recipe (missing or invalid id/attributes):", recipe);
-            return null; // Ignore malformed recipes
-          }
-
-          // Further validation for expected array types for ingredients and steps
-          // If ingredients is a single object, wrap it in an array for consistent mapping
-          const displayIngredients = Array.isArray(itemAttributes.ingredients)
-            ? itemAttributes.ingredients
-            : (itemAttributes.ingredients ? [itemAttributes.ingredients] : []); 
-
-          // If steps is an array of objects, extract a 'value' property if present, otherwise assume string
-          const displaySteps = Array.isArray(itemAttributes.steps)
-            ? itemAttributes.steps
-            : []; 
-
-          return (
-            <div key={itemAttributes.id} className="bg-white rounded-2xl shadow-xl border border-green-200 overflow-hidden">
-              {/* Access properties via itemAttributes - no ?. needed as itemAttributes is now guaranteed to exist */}
-              {itemAttributes.imageUrl && (
-                <img
-                  src={itemAttributes.imageUrl}
-                  alt={itemAttributes.title || 'Image de recette'}
-                  className="w-full h-48 object-cover"
-                  onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }} // Fallback image
+      {/* Main content area: Routes will render components here */}
+      {/* Suppression de h-full. flex-1 gère déjà la hauteur dans le flex-col. */}
+      {/* `overflow-hidden` est maintenu pour la navigation horizontale des pages. */}
+      <main className="flex-1 w-full overflow-hidden relative pb-20">
+        <Suspense fallback={<div className="text-center p-8">Chargement des fonctionnalités...</div>}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/generate-recipe"
+              element={
+                <CreateRecipeFormPage
+                  preferences={preferences}
+                  setPreferences={setPreferences} // Passe le setter des préférences
+                  handleSubmit={handleSubmit}
+                  loading={loading}
+                  error={error}
+                  mockMode={mockMode}
+                  setMockMode={setMockMode}
+                  setGeneratedRecipe={setGeneratedRecipe} // Passe le setter pour la recette générée
                 />
-              )}
-              <div className="p-6">
-                <h3 className="text-2xl font-bold text-green-700 mb-3">{itemAttributes.title || 'Titre inconnu'}</h3>
-                <p className="text-gray-700 mb-2">
-                  <span className="font-semibold">Durée :</span> {itemAttributes.duration || 'N/A'}
-                </p>
-                <p className="text-gray-700 mb-2">
-                  <span className="font-semibold">Difficulté :</span> {itemAttributes.difficulty || 'N/A'}
-                </p>
-                <p className="text-gray-700 mb-4">
-                  <span className="font-semibold">Personnes :</span> {itemAttributes.numPeople || 'N/A'}
-                </p>
+              }
+            />
+            <Route
+              path="/generated-recipe"
+              element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} />}
+            />
+            <Route path="/recipes-overview" element={<RecipesOverviewPage />} />
+            <Route
+              path="/profile"
+              element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} />}
+            />
+            {/* Routes d'administration, affichées conditionnellement dans le Header */}
+            {isAdmin && (
+              <>
+                <Route path="/admin/analytics" element={<AnalyticsDashboardPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+                <Route path="/admin/locations" element={<UserLocationMapPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+                <Route path="/admin/feature-usage" element={<FeatureUsagePage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+              </>
+            )}
+            {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
+            {!isAdmin && (
+                <Route path="/admin/*" element={
+                    <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"> {/* Ajout overflow-y-auto pour que cette page d'erreur soit défilable */}
+                        <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
+                        <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
+                    </div>
+                } />
+            )}
 
-                <h4 className="text-xl font-bold text-gray-800 mb-2">Ingrédients :</h4>
-                <ul className="list-disc list-inside text-gray-700 space-y-1 mb-4">
-                  {displayIngredients.length > 0 ? (
-                    displayIngredients.map((item, index) => (
-                      <li key={index}>
-                        {/* Access 'name' and 'quantity' or 'unit' from ingredient object */}
-                        <span className="font-semibold">{item.name || 'Nom inconnu'}</span>: {item.quantity || (item.unit && item.quantity ? `${item.quantity} ${item.unit}` : 'Quantité inconnue')}
-                      </li>
-                    ))
-                  ) : (
-                    <li>Aucun ingrédient spécifié.</li>
-                  )}
-                </ul>
-
-                <h4 className="text-xl font-bold text-gray-800 mb-2">Étapes :</h4>
-                <ol className="list-decimal list-inside text-gray-700 space-y-1">
-                  {displaySteps.length > 0 ? (
-                    displaySteps.map((step, index) => (
-                      <li key={index}>
-                        {typeof step === 'string' ? step : (step.value || 'Étape inconnue')} {/* Handle step being an object with a 'value' property or a string */}
-                      </li>
-                    ))
-                  ) : (
-                    <li>Aucune étape spécifiée.</li>
-                  )}
-                </ol>
+            {/* Ajoutez d'autres routes si nécessaire */}
+            <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
+            <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
+            
+            {/* Route pour les pages non trouvées (404) */}
+            <Route path="*" element={
+              <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto">
+                <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
+                <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
               </div>
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-};
+            } />
+          </Routes>
+        </Suspense>
+      </main>
 
-export default RecipeList;
+      {/* Section Newsletter - En bas de page */}
+      {/* Cette section est déplaçable dans HomePage.jsx si elle doit défiler avec le contenu de la page d'accueil */}
+      {/* Si elle reste ici, elle sera fixe en bas si elle est à l'intérieur du main, ou hors du main mais son style doit être ajusté pour ne pas être écrasé */}
+      <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
+        <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+        <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <input
+            type="email"
+            placeholder="Email@adresse.com"
+            className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+          />
+          <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
+            Je m'inscris
+          </button>
+        </div>
+      </section>
+
+      {/* Footer component (utilisera Link de React Router directement) */}
+      <Footer />
+    </div>
+  );
+}
+
+// Composant racine de l'application qui englobe AppContent avec le Router
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
+  );
+}
+
+export default App;
 

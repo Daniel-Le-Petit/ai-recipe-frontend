@@ -1,5 +1,5 @@
 // frontend/src/App.jsx
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'; // Added lazy and Suspense
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './index.css'; // Global styles for Tailwind - Chemin d'importation corrigé pour être relatif à src/
 import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
@@ -14,14 +14,14 @@ import {
 } from './components/Common/Icons.jsx'; // S'assure que toutes les icônes sont bien importées
 
 // Import des composants de page (CHEMINS CORRIGÉS VERS 'Pages')
-import HomePage from './components/Pages/HomePage.jsx';
-import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
-import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
-import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
-import ProfilePage from './components/Pages/ProfilePage.jsx';
-import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
-import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
-import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
+import HomePage from './components/Pages/HomePage.jsx'; // HomePage is loaded eagerly
+const CreateRecipeFormPage = lazy(() => import('./components/Pages/CreateRecipeFormPage.jsx'));
+const GeneratedRecipeDisplayPage = lazy(() => import('./components/Pages/GeneratedRecipeDisplayPage.jsx'));
+const RecipesOverviewPage = lazy(() => import('./components/Pages/RecipesOverviewPage.jsx'));
+const ProfilePage = lazy(() => import('./components/Pages/ProfilePage.jsx'));
+const AnalyticsDashboardPage = lazy(() => import('./components/Pages/AnalyticsDashboardPage.jsx'));
+const UserLocationMapPage = lazy(() => import('./components/Pages/UserLocationMapPage.jsx'));
+const FeatureUsagePage = lazy(() => import('./components/Pages/FeatureUsagePage.jsx'));
 
 
 function AppContent() {
@@ -165,62 +165,64 @@ function AppContent() {
       {/* Suppression de h-full. flex-1 gère déjà la hauteur dans le flex-col. */}
       {/* `overflow-hidden` est maintenu pour la navigation horizontale des pages. */}
       <main className="flex-1 w-full overflow-hidden relative pb-20">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route
-            path="/generate-recipe"
-            element={
-              <CreateRecipeFormPage
-                preferences={preferences}
-                setPreferences={setPreferences} // Passe le setter des préférences
-                handleSubmit={handleSubmit}
-                loading={loading}
-                error={error}
-                mockMode={mockMode}
-                setMockMode={setMockMode}
-                setGeneratedRecipe={setGeneratedRecipe} // Passe le setter pour la recette générée
-              />
-            }
-          />
-          <Route
-            path="/generated-recipe"
-            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} />}
-          />
-          <Route path="/recipes-overview" element={<RecipesOverviewPage />} />
-          <Route
-            path="/profile"
-            element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} />}
-          />
-          {/* Routes d'administration, affichées conditionnellement dans le Header */}
-          {isAdmin && (
-            <>
-              <Route path="/admin/analytics" element={<AnalyticsDashboardPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-              <Route path="/admin/locations" element={<UserLocationMapPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-              <Route path="/admin/feature-usage" element={<FeatureUsagePage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-            </>
-          )}
-          {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
-          {!isAdmin && (
-              <Route path="/admin/*" element={
-                  <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"> {/* Ajout overflow-y-auto pour que cette page d'erreur soit défilable */}
-                      <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
-                      <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
-                  </div>
-              } />
-          )}
+        <Suspense fallback={<div className="text-center p-8">Chargement des fonctionnalités...</div>}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/generate-recipe"
+              element={
+                <CreateRecipeFormPage
+                  preferences={preferences}
+                  setPreferences={setPreferences} // Passe le setter des préférences
+                  handleSubmit={handleSubmit}
+                  loading={loading}
+                  error={error}
+                  mockMode={mockMode}
+                  setMockMode={setMockMode}
+                  setGeneratedRecipe={setGeneratedRecipe} // Passe le setter pour la recette générée
+                />
+              }
+            />
+            <Route
+              path="/generated-recipe"
+              element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} />}
+            />
+            <Route path="/recipes-overview" element={<RecipesOverviewPage />} />
+            <Route
+              path="/profile"
+              element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} />}
+            />
+            {/* Routes d'administration, affichées conditionnellement dans le Header */}
+            {isAdmin && (
+              <>
+                <Route path="/admin/analytics" element={<AnalyticsDashboardPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+                <Route path="/admin/locations" element={<UserLocationMapPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+                <Route path="/admin/feature-usage" element={<FeatureUsagePage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
+              </>
+            )}
+            {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
+            {!isAdmin && (
+                <Route path="/admin/*" element={
+                    <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"> {/* Ajout overflow-y-auto pour que cette page d'erreur soit défilable */}
+                        <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
+                        <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
+                    </div>
+                } />
+            )}
 
-          {/* Ajoutez d'autres routes si nécessaire */}
-          <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
-          <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
-          
-          {/* Route pour les pages non trouvées (404) */}
-          <Route path="*" element={
-            <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto">
-              <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
-              <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
-            </div>
-          } />
-        </Routes>
+            {/* Ajoutez d'autres routes si nécessaire */}
+            <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
+            <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
+            
+            {/* Route pour les pages non trouvées (404) */}
+            <Route path="*" element={
+              <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto">
+                <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
+                <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
+              </div>
+            } />
+          </Routes>
+        </Suspense>
       </main>
 
       {/* Section Newsletter - En bas de page */}
