@@ -1,6 +1,6 @@
 // frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
 import './index.css'; // Global styles for Tailwind
 import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
 
@@ -8,7 +8,10 @@ import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analy
 import Header from './components/Common/Header.jsx';
 import Footer from './components/Common/Footer.jsx';
 
-// Import des composants de page (maintenant séparés)
+// Import des composants de page (maintenant des pages à part entière pour React Router)
+// NOTE: Vérifiez que ces chemins sont corrects. Si vos pages sont dans 'src/components/Common/',
+// vous devrez peut-être changer 'components/Pages/' en 'components/Common/' ici et dans les imports internes des pages.
+// Le chemin par défaut ici est 'components/Pages/'
 import HomePage from './components/Pages/HomePage.jsx';
 import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
 import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
@@ -20,11 +23,12 @@ import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
 
 // Initialisation de Google Analytics 4 au démarrage de l'application.
-// C'est un point clé : L'ID de mesure doit être celui de votre propriété GA4.
-// REMPLACEZ 'VOTRE_MEASUREMENT_ID_GA4' par l'ID de mesure que vous avez obtenu de Google Analytics (ex: 'G-XXXXXXXXXX')
+// L'ID de mesure réel à utiliser est G-493418792
 ReactGA.initialize('G-493418792');
 
 function AppContent() {
+  const navigate = useNavigate(); // Hook pour la navigation programmatique
+
   // Global state for recipe preferences and generation
   const [preferences, setPreferences] = useState({
     cuisineType: '',
@@ -41,13 +45,12 @@ function AppContent() {
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true);
   
-  // Admin mode state (for conceptual demonstration of admin dashboards)
+  // Admin mode state
   const [isAdmin, setIsAdmin] = useState(false); // Simulate admin role
-  const [currentPage, setCurrentPage] = useState('home'); // State to manage current page in App.jsx
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
-  // Mock data for AI recipe generation (used when mockMode is true)
+  // Mock data for AI recipe generation
   const mockAiRecipe = {
     title: "Curry de Légumes Express (Mocké AI)",
     duration: "30 minutes",
@@ -74,19 +77,27 @@ function AppContent() {
     imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
   };
 
+  // Handler for form input changes
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPreferences((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
   // Handler for form submission (generating AI recipe or searching existing)
-  const handleSubmit = async (e, actionType = 'generateAI') => { // actionType par défaut
+  const handleSubmit = async (e, actionType = 'generateAI') => {
     e.preventDefault();
     setLoading(true);
     setError('');
     setGeneratedRecipe(null); // Reset generated recipe on new submission
 
-    // If in mock mode, simulate API call with a delay
     if (mockMode && actionType === 'generateAI') {
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
-        setCurrentPage('generatedRecipeDisplay'); // Navigate to display page after mock generation
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage
       }, 1500);
       return;
     }
@@ -108,7 +119,6 @@ function AppContent() {
     };
 
     try {
-      // Make the API call to your Strapi backend
       const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
         method: 'POST',
         headers: {
@@ -125,9 +135,9 @@ function AppContent() {
       const data = await response.json();
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
-        setCurrentPage('generatedRecipeDisplay'); // Navigate to display page after successful generation
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage
       } else {
-        setGeneratedRecipe(data); // In case 'recipe' field is not directly present
+        setGeneratedRecipe(data);
       }
       
     } catch (err) {
@@ -138,38 +148,23 @@ function AppContent() {
     }
   };
 
-
-  // Function to handle navigation between pages and optionally scroll to sections
-  const handleNavigate = (page, sectionId = null) => {
-    setCurrentPage(page);
-    // Logic for scrolling to a specific section on the home page
-    if (page === 'home' && sectionId) {
-      setTimeout(() => {
-        document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth' });
-      }, 100);
-    }
-  };
-
-
   // Google Analytics 4 (GA4) Tracking avec React Router
-  // Le hook `useLocation` de React Router permet de suivre les changements d'URL
-  // qui sont déclenchés par la navigation interne (ex: Link to="/ma-page").
   const location = useLocation();
   useEffect(() => {
     // Envoie un événement de page vue à GA4 à chaque changement de route
     ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
-  }, [location]); // Déclenché à chaque changement de l'objet location (donc à chaque changement de route)
+  }, [location]);
 
 
   return (
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
-      {/* Header component - passe isAdmin et setIsAdmin pour le toggle de mode admin */}
-      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} handleNavigate={handleNavigate} />
+      {/* Header component */}
+      <Header navigate={navigate} isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
 
       {/* Main content area: Routes will render components here */}
       <main className="flex-1 w-full overflow-hidden relative h-full pb-20">
         <Routes>
-          <Route path="/" element={<HomePage handleNavigate={handleNavigate} />} />
+          <Route path="/" element={<HomePage navigate={navigate} />} />
           <Route
             path="/generate-recipe"
             element={
@@ -181,25 +176,25 @@ function AppContent() {
                 error={error}
                 mockMode={mockMode}
                 setMockMode={setMockMode}
-                handleNavigate={handleNavigate}
+                navigate={navigate}
               />
             }
           />
           <Route
             path="/generated-recipe"
-            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} handleNavigate={handleNavigate} />}
+            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} navigate={navigate} />}
           />
-          <Route path="/recipes-overview" element={<RecipesOverviewPage handleNavigate={handleNavigate} />} />
+          <Route path="/recipes-overview" element={<RecipesOverviewPage navigate={navigate} />} />
           <Route
             path="/profile"
-            element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} handleNavigate={handleNavigate} />}
+            element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} navigate={navigate} />}
           />
-          {/* Routes d'administration, affichées conditionnellement dans le Header */}
+          {/* Routes d'administration, affichées conditionnellement */}
           {isAdmin && (
             <>
-              <Route path="/admin/analytics" element={<AnalyticsDashboardPage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
-              <Route path="/admin/locations" element={<UserLocationMapPage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
-              <Route path="/admin/feature-usage" element={<FeatureUsagePage handleNavigate={handleNavigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/analytics" element={<AnalyticsDashboardPage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/locations" element={<UserLocationMapPage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/feature-usage" element={<FeatureUsagePage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
             </>
           )}
           {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
@@ -243,7 +238,7 @@ function AppContent() {
       </section>
 
       {/* Footer component */}
-      <Footer handleNavigate={handleNavigate} />
+      <Footer navigate={navigate} />
     </div>
   );
 }
