@@ -21,7 +21,7 @@ import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
 // Initialisation de Google Analytics 4 au démarrage de l'application.
 // L'ID de mesure réel à utiliser est G-493418792
-ReactGA.initialize('G-493418792');
+ReactGA.initialize('G-WVMZTWR8CK');
 
 function AppContent() {
   // Hook de navigation de React Router
