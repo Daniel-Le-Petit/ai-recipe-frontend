@@ -2,9 +2,6 @@
 # cd /mnt/c/Users/AIFinesHerbes/AIFB/frontend
 
 echo "--- Étape 1: Synchronisation et commit sur la branche 'dev' ---"
-# Passez à la branche dev
-git checkout dev
-
 # Affichez l'état actuel pour voir les modifications non stagées/non suivies
 git status
 
@@ -19,6 +16,9 @@ git commit -m "feat: Mise à jour du composant RecipeList avec parsing JSON et c
 # Poussez la branche dev mise à jour vers GitHub
 echo "Poussée de la branche 'dev' vers 'origin'..."
 git push origin dev
+
+# Passez à la branche dev
+git checkout dev
 
 echo "--- Étape 2: Fusion de 'dev' dans 'main' et push ---"
 # Passez à la branche main
