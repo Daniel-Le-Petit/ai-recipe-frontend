@@ -3,8 +3,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import de useNavigate
 import { CheckCircleIcon } from '../Common/Icons'; // Importez les icônes
 
-const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handleNavigate
-  const navigate = useNavigate(); // Initialisation du hook de navigation
+const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => {
+  const navigate = useNavigate(); // Initialisation du hook navigate
 
   if (!generatedRecipe) {
     return (
@@ -17,28 +17,9 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
     );
   }
 
-  // NOTE: Les ingrédients et les étapes sont stockés en tant que chaînes JSON dans Strapi.
-  // Nous devons les parser en objets/tableaux JavaScript pour les afficher correctement.
-  let ingredientsParsed = [];
-  try {
-    ingredientsParsed = generatedRecipe.ingredients ? JSON.parse(generatedRecipe.ingredients) : [];
-  } catch (e) {
-    console.error("Erreur de parsing des ingrédients:", e);
-    ingredientsParsed = [];
-  }
-
-  let stepsParsed = [];
-  try {
-    stepsParsed = generatedRecipe.steps ? JSON.parse(generatedRecipe.steps) : [];
-  } catch (e) {
-    console.error("Erreur de parsing des étapes:", e);
-    stepsParsed = [];
-  }
-
   return (
     <section id="generated-recipe-display" className="py-16 px-6 md:px-12 bg-gray-50 rounded-xl mx-4 my-6 shadow-lg">
       <div className="flex items-center mb-6">
-        {/* Utilisation de useNavigate pour le bouton de retour */}
         <button onClick={() => navigate('/generate-recipe')} className="p-2 mr-4 rounded-full bg-gray-200 hover:bg-gray-300 transition-colors">
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
         </button>
@@ -47,12 +28,12 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
         </h2>
       </div>
       <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-xl border border-green-200">
+        {/* Image de la recette avec un fallback */}
         {generatedRecipe.imageUrl && (
           <img
             src={generatedRecipe.imageUrl}
-            alt={generatedRecipe.title}
+            alt={`Image de ${generatedRecipe.title}`}
             className="w-full h-64 object-cover rounded-lg mb-6 shadow-md"
-            loading="lazy"
             onError={(e) => { e.target.onerror = null; e.target.src="https://placehold.co/600x400/CCCCCC/666666?text=Image+non+disponible"; }}
           />
         )}
@@ -63,7 +44,7 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
             </span>
           )}
           {generatedRecipe.robotCompatible && (
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 ml-2 mb-4">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
               Compatible robot de cuisine
             </span>
           )}
@@ -73,25 +54,17 @@ const GeneratedRecipeDisplayPage = ({ generatedRecipe }) => { // Supprimé handl
         </p>
         <h3 className="text-2xl font-bold text-gray-800 mb-3">Ingrédients :</h3>
         <ul className="list-disc list-inside text-gray-700 space-y-1 mb-6">
-          {ingredientsParsed.length > 0 ? (
-            ingredientsParsed.map((ing, index) => (
-              <li key={index}>
-                <span className="font-semibold">{ing.name}</span>: {ing.quantity}
-              </li>
-            ))
-          ) : (
-            <li>Aucun ingrédient spécifié.</li>
-          )}
+          {generatedRecipe.ingredients && generatedRecipe.ingredients.map((item, index) => (
+            <li key={index}>
+              <span className="font-semibold">{item.name}</span>: {item.quantity}
+            </li>
+          ))}
         </ul>
         <h3 className="text-2xl font-bold text-gray-800 mb-3">Étapes :</h3>
         <ol className="list-decimal list-inside text-gray-700 space-y-2">
-          {stepsParsed.length > 0 ? (
-            stepsParsed.map((step, index) => (
-              <li key={index}>{step}</li>
-            ))
-          ) : (
-            <li>Aucune étape spécifiée.</li>
-          )}
+          {generatedRecipe.steps && generatedRecipe.steps.map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
         </ol>
         <div className="flex flex-wrap justify-center gap-4 mt-8">
           <button className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-full shadow-md hover:bg-blue-700 transition-colors duration-200">
