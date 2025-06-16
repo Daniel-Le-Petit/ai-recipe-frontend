@@ -1,39 +1,31 @@
 // frontend/src/App.jsx
-import React, { useState, useEffect, useRef, lazy, Suspense } from 'react'; // Added lazy and Suspense
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import './index.css'; // Global styles for Tailwind - Chemin d'importation corrigé pour être relatif à src/
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'; // Import de useNavigate
+import './index.css'; // Global styles for Tailwind
 import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
 
-// Import des composants communs (CHEMINS VÉRIFIÉS)
+// Import des composants communs
 import Header from './components/Common/Header.jsx';
 import Footer from './components/Common/Footer.jsx';
-import {
-  LeafIcon, KitchenRobotIcon, CheckCircleIcon, SparklesIcon, ShoppingCartIcon, HomeIcon, LightbulbIcon,
-  BrainIcon, PackageIcon, UserIcon, BellIcon, HelpCircleIcon, SettingsIcon, BookOpenIcon, BarChartIcon,
-  GlobeIcon, PieChartIcon, ChevronLeftIcon, ChevronRightIcon // Toutes les icônes nécessaires
-} from './components/Common/Icons.jsx'; // S'assure que toutes les icônes sont bien importées
 
-// Import des composants de page (CHEMINS CORRIGÉS VERS 'Pages')
-import HomePage from './components/Pages/HomePage.jsx'; // HomePage is loaded eagerly
-const CreateRecipeFormPage = lazy(() => import('./components/Pages/CreateRecipeFormPage.jsx'));
-const GeneratedRecipeDisplayPage = lazy(() => import('./components/Pages/GeneratedRecipeDisplayPage.jsx'));
-const RecipesOverviewPage = lazy(() => import('./components/Pages/RecipesOverviewPage.jsx'));
-const ProfilePage = lazy(() => import('./components/Pages/ProfilePage.jsx'));
-const AnalyticsDashboardPage = lazy(() => import('./components/Pages/AnalyticsDashboardPage.jsx'));
-const UserLocationMapPage = lazy(() => import('./components/Pages/UserLocationMapPage.jsx'));
-const FeatureUsagePage = lazy(() => import('./components/Pages/FeatureUsagePage.jsx'));
+// Import des composants de page (maintenant séparés)
+import HomePage from './components/Pages/HomePage.jsx';
+import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
+import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
+import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
+import ProfilePage from './components/Pages/ProfilePage.jsx';
+import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
+import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
+import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
+
+// Initialisation de Google Analytics 4 au démarrage de l'application.
+// L'ID de mesure réel à utiliser est G-493418792
+ReactGA.initialize('G-493418792');
 
 function AppContent() {
-  // Initialisation de Google Analytics 4 au montage du composant AppContent.
-  // REMPLACEZ 'VOTRE_MEASUREMENT_ID_GA4' par l'ID de mesure que vous avez obtenu de Google Analytics (ex: 'G-XXXXXXXXXX')
-  // Si vous ne l'avez pas, mettez-le en commentaire pour le moment: // ReactGA.initialize('VOTRE_MEASUREMENT_ID_GA4');
-  useEffect(() => {
-    // Il est recommandé d'initialiser ReactGA une seule fois par session
-    // et de s'assurer que l'ID de mesure est valide.
-    // Vous pouvez ajouter une condition ici si l'ID est une variable d'environnement ou autre.
-    ReactGA.initialize('G-WVMZTWR8CK');
-  }, []); // Le tableau vide assure que cela ne s'exécute qu'une fois au montage
+  // Hook de navigation de React Router
+  const navigate = useNavigate();
 
   // Global state for recipe preferences and generation
   const [preferences, setPreferences] = useState({
@@ -80,7 +72,17 @@ function AppContent() {
     ],
     aiTested: true,
     robotCompatible: true,
-    imageUrl: "https://placehold.co/600x400/007BFF/FFFFFF?text=Mock+Image"
+    // URL de l'image de la recette mockée
+    imageUrl: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" // Image de pâtes gourmandes
+  };
+
+  // Handler for form input changes (moved from App.jsx as it was missing)
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setPreferences((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
   };
 
   // Handler for form submission (generating AI recipe or searching existing)
@@ -95,6 +97,7 @@ function AppContent() {
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage de recette générée
       }, 1500);
       return;
     }
@@ -133,6 +136,7 @@ function AppContent() {
       const data = await response.json();
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage de recette générée
       } else {
         setGeneratedRecipe(data); // In case 'recipe' field is not directly present
       }
@@ -147,87 +151,81 @@ function AppContent() {
 
 
   // Google Analytics 4 (GA4) Tracking avec React Router
+  // Le hook `useLocation` de React Router permet de suivre les changements d'URL
+  // qui sont déclenchés par la navigation interne (ex: Link to="/ma-page").
   const location = useLocation();
   useEffect(() => {
-    // N'envoyez l'événement que si VOTRE_MEASUREMENT_ID_GA4 est remplacé par un ID réel
-    if (ReactGA.isInitialized) { // Correction ici : ReactGA.isInitialized est une propriété booléenne, pas une fonction
-      ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
-    }
-  }, [location]);
+    // Envoie un événement de page vue à GA4 à chaque changement de route
+    ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
+  }, [location]); // Déclenché à chaque changement de l'objet location (donc à chaque changement de route)
+
 
   return (
-    // Suppression de la classe h-full sur le div racine. min-h-screen est suffisant.
-    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
-      {/* Header component (utilisera Link de React Router directement) */}
+    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
+      {/* Header component - passe navigate et isAdmin pour le toggle de mode admin */}
       <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
 
       {/* Main content area: Routes will render components here */}
-      {/* Suppression de h-full. flex-1 gère déjà la hauteur dans le flex-col. */}
-      {/* `overflow-hidden` est maintenu pour la navigation horizontale des pages. */}
-      <main className="flex-1 w-full overflow-hidden relative pb-20">
-        <Suspense fallback={<div className="text-center p-8">Chargement des fonctionnalités...</div>}>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/generate-recipe"
-              element={
-                <CreateRecipeFormPage
-                  preferences={preferences}
-                  setPreferences={setPreferences} // Passe le setter des préférences
-                  handleSubmit={handleSubmit}
-                  loading={loading}
-                  error={error}
-                  mockMode={mockMode}
-                  setMockMode={setMockMode}
-                  setGeneratedRecipe={setGeneratedRecipe} // Passe le setter pour la recette générée
-                />
-              }
-            />
-            <Route
-              path="/generated-recipe"
-              element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} />}
-            />
-            <Route path="/recipes-overview" element={<RecipesOverviewPage />} />
-            <Route
-              path="/profile"
-              element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} />}
-            />
-            {/* Routes d'administration, affichées conditionnellement dans le Header */}
-            {isAdmin && (
-              <>
-                <Route path="/admin/analytics" element={<AnalyticsDashboardPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-                <Route path="/admin/locations" element={<UserLocationMapPage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-                <Route path="/admin/feature-usage" element={<FeatureUsagePage STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} isAdmin={isAdmin} />} />
-              </>
-            )}
-            {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
-            {!isAdmin && (
-                <Route path="/admin/*" element={
-                    <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"> {/* Ajout overflow-y-auto pour que cette page d'erreur soit défilable */}
-                        <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
-                        <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
-                    </div>
-                } />
-            )}
+      <main className="flex-1 w-full overflow-hidden relative h-full pb-20">
+        <Routes>
+          <Route path="/" element={<HomePage navigate={navigate} />} />
+          <Route
+            path="/generate-recipe"
+            element={
+              <CreateRecipeFormPage
+                preferences={preferences}
+                handleChange={handleChange}
+                handleSubmit={handleSubmit}
+                loading={loading}
+                error={error}
+                mockMode={mockMode}
+                setMockMode={setMockMode}
+                navigate={navigate}
+              />
+            }
+          />
+          <Route
+            path="/generated-recipe"
+            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} navigate={navigate} />}
+          />
+          <Route path="/recipes-overview" element={<RecipesOverviewPage navigate={navigate} />} />
+          <Route
+            path="/profile"
+            element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} navigate={navigate} />}
+          />
+          {/* Routes d'administration, affichées conditionnellement dans le Header */}
+          {isAdmin && (
+            <>
+              <Route path="/admin/analytics" element={<AnalyticsDashboardPage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/locations" element={<UserLocationMapPage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+              <Route path="/admin/feature-usage" element={<FeatureUsagePage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
+            </>
+          )}
+          {/* Route pour le cas où l'utilisateur tente d'accéder à une route admin sans être admin */}
+          {!isAdmin && (
+              <Route path="/admin/*" element={
+                  <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center">
+                      <h2 className="text-4xl font-bold text-red-700 mb-6">Accès Refusé</h2>
+                      <p className="text-gray-700">Vous n'avez pas les permissions pour accéder à cette page.</p>
+                  </div>
+              } />
+          )}
 
-            {/* Ajoutez d'autres routes si nécessaire */}
-            <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
-            <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
-            
-            {/* Route pour les pages non trouvées (404) */}
-            <Route path="*" element={
-              <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center overflow-y-auto">
-                <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
-                <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
-              </div>
-            } />
-          </Routes>
-        </Suspense>
+          {/* Ajoutez d'autres routes si nécessaire */}
+          <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
+          <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
+          
+          {/* Route pour les pages non trouvées (404) */}
+          <Route path="*" element={
+            <div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center">
+              <h2 className="text-4xl font-bold text-red-700 mb-6">404 - Page Non Trouvée</h2>
+              <p className="text-gray-700">Désolé, la page que vous recherchez n'existe pas.</p>
+            </div>
+          } />
+        </Routes>
       </main>
 
       {/* Section Newsletter - En bas de page */}
-      {/* Cette section est déplaçable dans HomePage.jsx si elle doit défiler avec le contenu de la page d'accueil */}
-      {/* Si elle reste ici, elle sera fixe en bas si elle est à l'intérieur du main, ou hors du main mais son style doit être ajusté pour ne pas être écrasé */}
       <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
         <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
         <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
@@ -243,8 +241,8 @@ function AppContent() {
         </div>
       </section>
 
-      {/* Footer component (utilisera Link de React Router directement) */}
-      <Footer />
+      {/* Footer component */}
+      <Footer navigate={navigate} />
     </div>
   );
 }
