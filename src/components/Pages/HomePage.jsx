@@ -23,10 +23,10 @@ const HomePage = () => {
         {/* Carte 1: Créer une recette IA */}
         <div className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col overflow-hidden group">
           <img
-            src="/images/Recette_IA.jfif" // CHEMIN DE L'IMAGE CORRIGÉ
+	    src="Recette_IA.jfif" // Chemin correct depuis la racine 'public'
             alt="Une assiette de pâtes créative"
             className="w-full h-48 object-cover rounded-t-3xl group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => { e.target.onerror = null; e.target.src="/images/Recette_IA.jfif"; }}
+            onError={(e) => { e.target.onerror = null; e.target.src="/image/Recette_IA.jfif"; }}
           />
           <div className="p-6 flex flex-col flex-grow">
             <h3 className="text-2xl font-bold text-green-700 mb-3">Créez votre recette IA</h3>
@@ -45,10 +45,10 @@ const HomePage = () => {
         {/* Carte 2: Trouver une recette par ingrédient */}
         <div className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col overflow-hidden group">
           <img
-            src="https://images.pexels.com/photos/3434685/pexels-photo-3434685.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" // Placeholder Ingredients
+            src="/mnt/c/Users/AIFinesHerbes/AIFB/frontend/public/image/Cuisiner_ingredients.jfif" // Placeholder Ingredients
             alt="Mains préparant des légumes frais"
             className="w-full h-48 object-cover rounded-t-3xl group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => { e.target.onerror = null; e.target.src="Cuisiner_ingredients.jfif"; }}
+            onError={(e) => { e.target.onerror = null; e.target.src="/image/Cuisiner_ingredients.jfif"; }}
           />
           <div className="p-6 flex flex-col flex-grow">
             <h3 className="text-2xl font-bold text-green-700 mb-3">Trouvez votre recette par ingrédient</h3>
@@ -67,10 +67,10 @@ const HomePage = () => {
         {/* Carte 3: Explorer les recettes inspirantes */}
         <div className="bg-white rounded-3xl shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 flex flex-col overflow-hidden group">
           <img
-            src="https://images.pexels.com/photos/10313883/pexels-photo-10313883.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1" // Placeholder Inspiring Recipes
+            src="/image/recette_inspirantes.jfif" // Placeholder Inspiring Recipes
             alt="Table remplie de plats variés et colorés"
             className="w-full h-48 object-cover rounded-t-3xl group-hover:scale-105 transition-transform duration-300"
-            onError={(e) => { e.target.onerror = null; e.target.src="recette_inspirantes.jfif"; }}
+            onError={(e) => { e.target.onerror = null; e.target.src="/image/recette_inspirantes.jfif"; }}
           />
           <div className="p-6 flex flex-col flex-grow">
             <h3 className="text-2xl font-bold text-green-700 mb-3">Explorez nos recettes inspirantes</h3>
