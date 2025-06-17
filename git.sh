@@ -5,7 +5,7 @@ git status
 
 # Passez et mettez à jour votre branche dev :
 git checkout dev
-#git pull origin dev # TRÈS IMPORTANT : Récupère les dernières modifs de la branche distante
+git pull origin dev # TRÈS IMPORTANT : Récupère les dernières modifs de la branche distante
 git add . # Stager tous les fichiers modifiés et non suivis
 git commit -m "feat: Mise à jour du composant RecipeList avec parsing JSON et corrections UX (Correction GA)"
 git push origin dev
