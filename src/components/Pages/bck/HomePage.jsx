@@ -1,7 +1,7 @@
 // frontend/src/components/Pages/HomePage.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom'; // Import de useNavigate pour la navigation
-import './HomePage.css'; // <-- Style de navigation de la Home page
+
 const HomePage = () => {
   const navigate = useNavigate(); // Initialisation du hook navigate
 
@@ -92,4 +92,3 @@ const HomePage = () => {
 };
 
 export default HomePage;
-

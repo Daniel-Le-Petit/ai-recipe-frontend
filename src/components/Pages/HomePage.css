@@ -1,0 +1,62 @@
+/* --- Styles pour le Header (Premier Tiers Vertical) --- */
+.home-header {
+    flex: 1; /* Permet au header de prendre 1 part de l'espace vertical disponible */
+    display: flex;
+    flex-direction: column; /* Organise les éléments verticalement */
+    justify-content: center; /* Centre les éléments verticalement */
+    align-items: center; /* Centre les éléments horizontalement */
+    padding: 20px; /* Ajoute un peu d'espace intérieur */
+    background-color: #F8F8F8; /* Couleur de fond légère pour le header */
+    text-align: center; /* Centre le texte */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Légère ombre pour la profondeur */
+}
+
+.home-header .header-icon {
+    width: 100px; /* Taille de l'icône */
+    height: auto; /* Maintient les proportions */
+    margin-bottom: 15px; /* Espace sous l'icône */
+}
+
+.home-header .header-title {
+    font-size: 3em; /* Grande taille pour le titre principal */
+    color: #4CAF50; /* Une couleur qui rappelle la "fines herbes" */
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.home-header .header-slogan-line {
+    font-size: 1.2em; /* Taille légèrement plus grande pour les slogans */
+    color: #555;
+    margin: 5px 0; /* Espacement entre les lignes de slogan */
+    max-width: 800px; /* Limite la largeur pour une meilleure lisibilité sur grand écran */
+    line-height: 1.4;
+}
+
+/* Styles Responsifs pour le Header */
+@media (max-width: 768px) {
+    .home-header .header-icon {
+        width: 80px;
+    }
+    .home-header .header-title {
+        font-size: 2.2em;
+    }
+    .home-header .header-slogan-line {
+        font-size: 1em;
+        padding: 0 15px; /* Ajoutez un peu de padding latéral sur mobile */
+    }
+}
+
+@media (max-width: 480px) {
+    .home-header {
+        padding: 15px;
+    }
+    .home-header .header-icon {
+        width: 70px;
+    }
+    .home-header .header-title {
+        font-size: 1.8em;
+    }
+    .home-header .header-slogan-line {
+        font-size: 0.9em;
+    }
+}

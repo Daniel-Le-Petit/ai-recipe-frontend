@@ -1,0 +1,10 @@
+echo "// CREATE NEW FILE" > CreerRecetteIA.jsx
+echo "" > TrouverRecetteExistante.jsx
+echo "" > ExplorerRecettes.jsx
+echo "" > DetailRecetteIA.jsx
+echo "" > DetailRecetteExistante.jsx
+echo "" > AjouterPanier.jsx
+echo "" > ExporterRobot.jsx
+echo "" > NoterRecette.jsx
+echo "" > MesRecettes.jsx
+

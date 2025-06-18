@@ -1,72 +1,55 @@
 // frontend/src/App.jsx
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, useNavigate } from 'react-router-dom'; // Import de useNavigate
 import './index.css'; // Global styles for Tailwind
 import ReactGA from 'react-ga4'; // Importation de la bibliothèque Google Analytics 4
 
-// Import des composants communs (Header et Footer restent inchangés ici)
+// Import des composants communs
 import Header from './components/Common/Header.jsx';
 import Footer from './components/Common/Footer.jsx';
 
-// Import des composants de page (mis à jour selon la nouvelle structure)
-import HomePage from './components/Pages/HomePage.jsx'; // Votre page d'accueil avec les 3 tiers
-import CreerRecetteIA from './components/Pages/CreerRecetteIA.jsx'; // Page pour créer une recette via l'IA
-import DetailRecetteIA from './components/Pages/DetailRecetteIA.jsx'; // Page pour afficher la recette générée par l'IA
-
-import TrouverRecetteExistante from './components/Pages/TrouverRecetteExistante.jsx'; // Page pour trouver recette par ingrédients
-import ExplorerRecettes from './components/Pages/ExplorerRecettes.jsx'; // Page pour explorer les recettes inspirantes
-import DetailRecetteExistante from './components/Pages/DetailRecetteExistante.jsx'; // Page de détail pour recettes existantes/inspirantes (réutilisable)
-
-import MesRecettes from './components/Pages/MesRecettes.jsx'; // Page Mes Recettes (accessible via Footer)
-import ProfilPage from './components/Pages/ProfilePage.jsx'; // Page Profil (accessible via Footer)
-
-// Pages pour les actions de détail sur recette
-import AjouterPanier from './components/Pages/AjouterPanier.jsx';
-import ExporterRobot from './components/Pages/ExporterRobot.jsx';
-import NoterRecette from './components/Pages/NoterRecette.jsx';
-
-
-// Import des composants d'administration (restent inchangés dans leur principe)
+// Import des composants de page (maintenant séparés)
+import HomePage from './components/Pages/HomePage.jsx';
+import CreateRecipeFormPage from './components/Pages/CreateRecipeFormPage.jsx';
+import GeneratedRecipeDisplayPage from './components/Pages/GeneratedRecipeDisplayPage.jsx';
+import RecipesOverviewPage from './components/Pages/RecipesOverviewPage.jsx';
+import ProfilePage from './components/Pages/ProfilePage.jsx';
 import AnalyticsDashboardPage from './components/Pages/AnalyticsDashboardPage.jsx';
 import UserLocationMapPage from './components/Pages/UserLocationMapPage.jsx';
 import FeatureUsagePage from './components/Pages/FeatureUsagePage.jsx';
 
 
 // Initialisation de Google Analytics 4 au démarrage de l'application.
-// L'ID de mesure réel à utiliser est G-WVMZTWR8CK
-// Note: Assurez-vous que l'ID est correct dans votre environnement de production
+// L'ID de mesure réel à utiliser est G-493418792
 ReactGA.initialize('G-WVMZTWR8CK');
 
 function AppContent() {
-  const navigate = useNavigate(); // Hook de navigation de React Router
-  const location = useLocation(); // Pour Google Analytics et potentiellement la logique de retour
+  // Hook de navigation de React Router
+  const navigate = useNavigate();
 
-  // Global state for recipe preferences and generation (maintenu ici si partagé globalement)
+  // Global state for recipe preferences and generation
   const [preferences, setPreferences] = useState({
     cuisineType: '',
     numPeople: 1,
     maxDuration: 60,
     difficulty: 'Facile',
-    ingredients: '', // Sera probablement un tableau ou objet pour multiples ingrédients
+    ingredients: '',
     maxIngredients: 10,
     recipeGoal: '',
     robotCompatible: false,
   });
-  const [generatedRecipe, setGeneratedRecipe] = useState(null); // Recette générée par l'IA
-  const [selectedRecipeDetail, setSelectedRecipeDetail] = useState(null); // Recette existante/inspirante sélectionnée pour affichage détaillé
-  
+  const [generatedRecipe, setGeneratedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [mockMode, setMockMode] = useState(true);
   
-  // Admin mode state
+  // Admin mode state (for conceptual demonstration of admin dashboards)
   const [isAdmin, setIsAdmin] = useState(false); // Simulate admin role
 
   const STRAPI_BACKEND_URL = import.meta.env.VITE_APP_STRAPI_API_URL;
 
   // Mock data for AI recipe generation (used when mockMode is true)
   const mockAiRecipe = {
-    id: 'mock-ai-recipe-1', // Ajout d'un ID pour la sélection
     title: "Curry de Légumes Express (Mocké AI)",
     duration: "30 minutes",
     ingredients: [
@@ -76,7 +59,8 @@ function AppContent() {
       { name: "Pâte de curry rouge", quantity: "2 c. à soupe" },
       { name: "Oignon", quantity: "1" },
       { name: "Ail", quantity: "2 gousses" },
-      { name: "Gingembre frais", quantity: "1 morceau" }
+      { name: "Gingembre frais", quantity: "1 morceau" },
+      { name: "Riz Basmati", quantity: "200g" }
     ],
     steps: [
       "Faire revenir l'oignon, l'ail et le gingembre hachés dans un filet d'huile.",
@@ -88,10 +72,11 @@ function AppContent() {
     ],
     aiTested: true,
     robotCompatible: true,
-    imageUrl: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750"
+    // URL de l'image de la recette mockée
+    imageUrl: "https://images.pexels.com/photos/1640777/pexels-photo-1640777.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750" // Image de pâtes gourmandes
   };
 
-  // Handler for form input changes
+  // Handler for form input changes (moved from App.jsx as it was missing)
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
     setPreferences((prev) => ({
@@ -101,41 +86,45 @@ function AppContent() {
   };
 
   // Handler for form submission (generating AI recipe or searching existing)
-  // Cette fonction est maintenant plus spécifique à la génération IA
-  const handleGenerateAISubmit = async (e) => {
+  const handleSubmit = async (e, actionType = 'generateAI') => { // actionType par défaut
     e.preventDefault();
     setLoading(true);
     setError('');
     setGeneratedRecipe(null); // Reset generated recipe on new submission
 
-    if (mockMode) {
+    // If in mock mode, simulate API call with a delay
+    if (mockMode && actionType === 'generateAI') {
       setTimeout(() => {
         setGeneratedRecipe({ ...mockAiRecipe, id: Date.now() });
         setLoading(false);
-        navigate('/detail-recette-ia'); // Naviguer vers la page d'affichage de recette générée
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage de recette générée
       }, 1500);
       return;
     }
 
-    // Préparation des données pour l'API (à adapter à votre backend Strapi)
+    // Prepare data to send to the backend
     let dataToSend = {
+      actionType: actionType,
       cuisineType: preferences.cuisineType,
       numPeople: preferences.numPeople,
       maxDuration: preferences.maxDuration,
       difficulty: preferences.difficulty,
       ingredients: preferences.ingredients
-                        .split(',')
-                        .map(item => item.trim())
-                        .filter(item => item.length > 0),
+                   .split(',')
+                   .map(item => item.trim())
+                   .filter(item => item.length > 0),
       maxIngredients: preferences.maxIngredients,
       recipeGoal: preferences.recipeGoal,
       robotCompatible: preferences.robotCompatible,
     };
 
     try {
+      // Make the API call to your Strapi backend
       const response = await fetch(`${STRAPI_BACKEND_URL}/api/recipe-generator/generate`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify(dataToSend),
       });
 
@@ -147,11 +136,9 @@ function AppContent() {
       const data = await response.json();
       if (data.recipe) {
         setGeneratedRecipe(data.recipe);
-        navigate('/detail-recette-ia'); // Naviguer vers la page d'affichage de recette générée
+        navigate('/generated-recipe'); // Naviguer vers la page d'affichage de recette générée
       } else {
-        // Gérer le cas où la structure de réponse est différente
-        setGeneratedRecipe(data); 
-        navigate('/detail-recette-ia');
+        setGeneratedRecipe(data); // In case 'recipe' field is not directly present
       }
       
     } catch (err) {
@@ -164,30 +151,31 @@ function AppContent() {
 
 
   // Google Analytics 4 (GA4) Tracking avec React Router
+  // Le hook `useLocation` de React Router permet de suivre les changements d'URL
+  // qui sont déclenchés par la navigation interne (ex: Link to="/ma-page").
+  const location = useLocation();
   useEffect(() => {
+    // Envoie un événement de page vue à GA4 à chaque changement de route
     ReactGA.send({ hitType: "pageview", page: location.pathname + location.search });
-  }, [location]);
+  }, [location]); // Déclenché à chaque changement de l'objet location (donc à chaque changement de route)
+
 
   return (
-    // Le conteneur principal de l'application
     <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
-      {/* Header component - passe isAdmin pour le toggle de mode admin */}
-      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} navigate={navigate} /> {/* Passe navigate au Header */}
+      {/* Header component - passe navigate et isAdmin pour le toggle de mode admin */}
+      <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
 
       {/* Main content area: Routes will render components here */}
-      <main className="flex-1 w-full relative"> {/* Supprime overflow-hidden et h-full si le contenu doit défiler */}
+      <main className="flex-1 w-full overflow-hidden relative h-full pb-20">
         <Routes>
-          {/* Route pour la page d'accueil */}
-          <Route path="/" element={<HomePage />} /> {/* HomePage n'a plus besoin de navigate en prop car il utilise Link */}
-
-          {/* Routes de la nouvelle structure */}
+          <Route path="/" element={<HomePage navigate={navigate} />} />
           <Route
-            path="/creer-recette-ia"
+            path="/generate-recipe"
             element={
-              <CreerRecetteIA
+              <CreateRecipeFormPage
                 preferences={preferences}
                 handleChange={handleChange}
-                handleSubmit={handleGenerateAISubmit} // Utilisez le handler spécifique pour la génération IA
+                handleSubmit={handleSubmit}
                 loading={loading}
                 error={error}
                 mockMode={mockMode}
@@ -197,33 +185,15 @@ function AppContent() {
             }
           />
           <Route
-            path="/detail-recette-ia"
-            element={<DetailRecetteIA generatedRecipe={generatedRecipe} navigate={navigate} />}
+            path="/generated-recipe"
+            element={<GeneratedRecipeDisplayPage generatedRecipe={generatedRecipe} navigate={navigate} />}
           />
-
+          <Route path="/recipes-overview" element={<RecipesOverviewPage navigate={navigate} />} />
           <Route
-            path="/trouver-recette-existante"
-            element={<TrouverRecetteExistante navigate={navigate} setSelectedRecipeDetail={setSelectedRecipeDetail} />} // Passer setSelectedRecipeDetail pour le clic sur les cartes de résultats
-          />
-          <Route
-            path="/explorer-recettes"
-            element={<ExplorerRecettes navigate={navigate} setSelectedRecipeDetail={setSelectedRecipeDetail} />} // Passer setSelectedRecipeDetail
-          />
-          <Route
-            path="/detail-recette-existante"
-            element={<DetailRecetteExistante selectedRecipeDetail={selectedRecipeDetail} navigate={navigate} />}
-          />
-
-          <Route path="/mes-recettes" element={<MesRecettes navigate={navigate} setSelectedRecipeDetail={setSelectedRecipeDetail} />} />
-          <Route path="/panier" element={<AjouterPanier navigate={navigate} />} />
-          <Route path="/exporter-robot" element={<ExporterRobot navigate={navigate} />} />
-          <Route path="/noter-recette" element={<NoterRecette navigate={navigate} />} />
-          <Route
-            path="/profil"
+            path="/profile"
             element={<ProfilePage isAdmin={isAdmin} setIsAdmin={setIsAdmin} navigate={navigate} />}
           />
-
-          {/* Routes d'administration, affichées conditionnellement */}
+          {/* Routes d'administration, affichées conditionnellement dans le Header */}
           {isAdmin && (
             <>
               <Route path="/admin/analytics" element={<AnalyticsDashboardPage navigate={navigate} STRAPI_BACKEND_URL={STRAPI_BACKEND_URL} />} />
@@ -240,8 +210,8 @@ function AppContent() {
                   </div>
               } />
           )}
-          
-          {/* Routes pour les pages statiques (Politique de Confidentialité, Mentions Légales) */}
+
+          {/* Ajoutez d'autres routes si nécessaire */}
           <Route path="/privacy-policy" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h2><p className="mt-4 text-gray-700">Contenu de la politique de confidentialité...</p></div>} />
           <Route path="/legal-notices" element={<div className="py-16 px-6 md:px-12 bg-white rounded-xl mx-4 my-6 shadow-lg text-center"><h2 className="text-3xl font-bold text-gray-800">Mentions Légales</h2><p className="mt-4 text-gray-700">Contenu des mentions légales...</p></div>} />
           
@@ -255,8 +225,23 @@ function AppContent() {
         </Routes>
       </main>
 
-      {/* Footer component - positionné en bas de page */}
-      {/* Note: La section newsletter a été déplacée dans HomePage.jsx */}
+      {/* Section Newsletter - En bas de page */}
+      <section className="bg-gradient-to-br from-green-700 to-green-900 text-white py-16 px-6 md:px-12 text-center rounded-xl mx-4 my-6 shadow-lg">
+        <h2 className="text-4xl font-bold mb-6">Recevez nos recettes éthiques et gourmandes chaque semaine</h2>
+        <p className="text-lg mb-8">Ne manquez jamais une inspiration culinaire personnalisée.</p>
+        <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+          <input
+            type="email"
+            placeholder="Email@adresse.com"
+            className="w-full sm:w-80 p-4 rounded-full border border-green-500 bg-white text-gray-800 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-green-400 transition-all duration-200"
+          />
+          <button className="px-8 py-4 bg-green-500 text-white font-bold rounded-full shadow-lg hover:bg-green-600 transition-all duration-300 transform hover:scale-105">
+            Je m'inscris
+          </button>
+        </div>
+      </section>
+
+      {/* Footer component */}
       <Footer navigate={navigate} />
     </div>
   );
@@ -272,3 +257,4 @@ function App() {
 }
 
 export default App;
+
