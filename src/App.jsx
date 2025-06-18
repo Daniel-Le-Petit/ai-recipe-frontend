@@ -18,7 +18,7 @@ import ExplorerRecettes from './components/Pages/ExplorerRecettes.jsx'; // Page 
 import DetailRecetteExistante from './components/Pages/DetailRecetteExistante.jsx'; // Page de détail pour recettes existantes/inspirantes (réutilisable)
 
 import MesRecettes from './components/Pages/MesRecettes.jsx'; // Page Mes Recettes (accessible via Footer)
-import ProfilePage from './components/Pages/ProfilePage.jsx'; // <--- CHANGE THIS LINE
+import ProfilePage from './components/Pages/ProfilePage.jsx'; // Page Profil (accessible via Footer)
 
 
 // Pages pour les actions de détail sur recette
@@ -170,13 +170,15 @@ function AppContent() {
   }, [location]);
 
   return (
-    // Le conteneur principal de l'application
-    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col h-full">
+    // Le conteneur principal de l'application. On retire 'h-full' car 'min-h-screen' est suffisant
+    // et parfois 'h-full' peut créer des conflits de hauteur si le parent n'est pas 100% de la hauteur.
+    <div className="min-h-screen bg-gray-50 font-inter text-gray-800 flex flex-col">
       {/* Header component - passe isAdmin pour le toggle de mode admin */}
       <Header isAdmin={isAdmin} setIsAdmin={setIsAdmin} navigate={navigate} /> {/* Passe navigate au Header */}
 
       {/* Main content area: Routes will render components here */}
-      <main className="flex-1 w-full relative"> {/* Supprime overflow-hidden et h-full si le contenu doit défiler */}
+      {/* La classe 'flex-grow' est cruciale pour que ce conteneur prenne l'espace disponible */}
+      <main className="flex-grow w-full relative"> {/* 'flex-1' est équivalent à 'flex-grow w-full' */}
         <Routes>
           {/* Route pour la page d'accueil */}
           <Route path="/" element={<HomePage />} /> {/* HomePage n'a plus besoin de navigate en prop car il utilise Link */}
