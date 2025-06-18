@@ -4,7 +4,7 @@
 @tailwind utilities;
 
 /* Styles globaux pour le document HTML et le corps */
-html, body { /* AJOUT DE 'html' ICI */
+html, body, #root { /* AJOUT DE 'html' ICI */
     height: 100%; /* TRÈS IMPORTANT : Assure que HTML et BODY prennent toute la hauteur de la fenêtre */
     margin: 0;
     padding: 0;
