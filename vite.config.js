@@ -8,7 +8,7 @@ export default defineConfig({
     // Cible pour une meilleure compatibilité avec les navigateurs plus anciens, comme Safari sur iOS
     // 'es2018' est un bon équilibre entre compatibilité et performance
     target: 'es2018', 
-    outDir: '../dist', // Vérifiez que ce chemin correspond à votre configuration de déploiement sur Render
+    outDir: 'dist', // Ou './dist' - les deux fonctionnent de la même manière ici
   },
 
   // Section optimizeDeps : utile pour le pré-bundling des dépendances,
