@@ -18,7 +18,8 @@ import ExplorerRecettes from './components/Pages/ExplorerRecettes.jsx'; // Page 
 import DetailRecetteExistante from './components/Pages/DetailRecetteExistante.jsx'; // Page de détail pour recettes existantes/inspirantes (réutilisable)
 
 import MesRecettes from './components/Pages/MesRecettes.jsx'; // Page Mes Recettes (accessible via Footer)
-import ProfilPage from './components/Pages/ProfilePage.jsx'; // Page Profil (accessible via Footer)
+import ProfilePage from './components/Pages/ProfilePage.jsx'; // <--- CHANGE THIS LINE
+
 
 // Pages pour les actions de détail sur recette
 import AjouterPanier from './components/Pages/AjouterPanier.jsx';

@@ -4,6 +4,13 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()], // Active le plugin React pour la compilation
   
+  build: {
+    // Cible pour une meilleure compatibilité avec les navigateurs plus anciens, comme Safari sur iOS
+    // 'es2018' est un bon équilibre entre compatibilité et performance
+    target: 'es2018', 
+    outDir: '../dist', // Vérifiez que ce chemin correspond à votre configuration de déploiement sur Render
+  },
+
   // Section optimizeDeps : utile pour le pré-bundling des dépendances,
   // et s'assure que les fichiers .js sont traités comme du JSX si nécessaire.
   optimizeDeps: {
