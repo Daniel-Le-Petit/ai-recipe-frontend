@@ -6,7 +6,12 @@ export default { // <-- Assurez-vous que c'est bien 'export default'
     "./src/**/*.{js,ts,jsx,tsx}", // <-- TRÈS IMPORTANT : vérifier ce chemin
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['"Inter"', 'sans-serif'], // ou autre police
+        heading: ['"Playfair Display"', 'serif']
+      }
+    }
   },
   plugins: [],
 }
